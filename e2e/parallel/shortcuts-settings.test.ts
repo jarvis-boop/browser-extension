@@ -9,7 +9,7 @@ import {
   it,
 } from 'vitest';
 
-import remoteConfig from '~/core/firebase/remoteConfig';
+import { useRemoteConfigStore } from '~/core/state/remoteConfig';
 
 import {
   checkExtensionURL,
@@ -133,7 +133,7 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 7 : 6,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled ? 7 : 6,
       });
       await executePerformShortcut({ driver, key: 'ARROW_RIGHT' });
       await checkExtensionURL(driver, 'privacy');
@@ -213,7 +213,7 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 7 : 6,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled ? 7 : 6,
       });
       await executePerformShortcut({ driver, key: 'ENTER' });
       await checkExtensionURL(driver, 'privacy');
@@ -358,7 +358,7 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 8 : 7,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled ? 8 : 7,
       });
       await executePerformShortcut({ driver, key: 'ENTER' });
       await checkExtensionURL(driver, 'currency');
@@ -383,7 +383,7 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 9 : 8,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled ? 9 : 8,
       });
       await executePerformShortcut({ driver, key: 'ENTER' });
       await checkExtensionURL(driver, 'language');
@@ -402,7 +402,7 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 9 : 8,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled ? 9 : 8,
       });
       await executePerformShortcut({ driver, key: 'ENTER' });
       await checkExtensionURL(driver, 'language');
@@ -419,7 +419,9 @@ describe.runIf(browser !== 'firefox')(
       await executePerformShortcut({
         driver,
         key: 'TAB',
-        timesToPress: remoteConfig.approvals_enabled ? 10 : 9,
+        timesToPress: useRemoteConfigStore.getState().approvals_enabled
+          ? 10
+          : 9,
       });
       await executePerformShortcut({ driver, key: 'ENTER' });
       const systemOption = await findElementByText(driver, 'System');

@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 
 import { analytics } from '~/analytics';
 import { event } from '~/analytics/event';
-import config from '~/core/firebase/remoteConfig';
 import { i18n, supportedLanguages } from '~/core/languages';
 import { supportedCurrencies } from '~/core/references';
 import {
@@ -24,6 +23,7 @@ import {
   FeatureFlagTypes,
   useFeatureFlagsStore,
 } from '~/core/state/currentSettings/featureFlags';
+import { useRemoteConfigStore } from '~/core/state/remoteConfig';
 import { useSoundStore } from '~/core/state/sound';
 import { ThemeOption } from '~/core/types/settings';
 import { Box, Inline, Symbol, Text } from '~/design-system';
@@ -52,6 +52,7 @@ export function Settings() {
   const { featureFlags, setFeatureFlag } = useFeatureFlagsStore();
   const { isWatchingWallet } = useWallets();
   const { getAppUUID, handleUUIDCopy } = useDeviceUUID();
+  const approvalsEnabled = useRemoteConfigStore((s) => s.approvals_enabled);
 
   const { currentUserSelectedTheme, currentTheme, setCurrentTheme } =
     useCurrentThemeStore();
@@ -181,7 +182,7 @@ export function Settings() {
             }
           />
           <MenuItem
-            last={isWatchingWallet || !config.approvals_enabled}
+            last={isWatchingWallet || !approvalsEnabled}
             hasRightArrow
             leftComponent={
               <Symbol
@@ -197,7 +198,7 @@ export function Settings() {
             }
             testId="settings-transactions"
           />
-          {isWatchingWallet || !config.approvals_enabled ? null : (
+          {isWatchingWallet || !approvalsEnabled ? null : (
             <MenuItem
               last
               hasRightArrow

@@ -1,7 +1,9 @@
 import { uuid4 } from '@sentry/core';
 
+import '~/core/firebase/fcm';
 import { initializeMessenger } from '~/core/messengers';
 import { initializeSentry } from '~/core/sentry';
+import { useRemoteConfigStore } from '~/core/state/remoteConfig';
 import { localStorageRecycler } from '~/core/storage/localStorageRecycler';
 
 import { handleAutoLock } from './handlers/handleAutoLock';
@@ -32,5 +34,8 @@ handlePrefetchDappMetadata();
 handleSetupInpage();
 handleWallets();
 handleAutoLock();
+
+// Prefetch remote config when background has headroom
+setTimeout(() => useRemoteConfigStore.getState().fetch(), 0);
 
 uuid4();

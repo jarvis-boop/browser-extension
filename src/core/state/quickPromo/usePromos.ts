@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import config from '~/core/firebase/remoteConfig';
+import { useRemoteConfigStore } from '~/core/state/remoteConfig';
 
 import { PromoType, useQuickPromoStore } from './index';
 
@@ -19,38 +19,43 @@ const promosByPage: Record<PromoPage, PromoType[]> = {
   swap: ['degen_mode'],
 };
 
-// Feature flag checks for promos
-const isPromoEnabled = (
-  promoType: PromoType,
-  isWatchingWallet?: boolean,
-): boolean => {
-  switch (promoType) {
-    case 'airdrop_banner':
-      // Don't show airdrop banner for watching wallets
-      return config.rnbw_rewards_enabled && !isWatchingWallet;
-    case 'degen_mode':
-      return config.degen_mode_enabled;
-    default:
-      return true;
-  }
-};
-
 /**
  * Hook to get the active promo for a specific page
  * Returns the highest priority unseen promo that is enabled for the page
  */
 export function usePromos(page: PromoPage, isWatchingWallet?: boolean) {
   const { seenPromos, setSeenPromo } = useQuickPromoStore();
+  const rnbwRewardsEnabled = useRemoteConfigStore(
+    (s) => s.rnbw_rewards_enabled,
+  );
+  const degenModeEnabled = useRemoteConfigStore((s) => s.degen_mode_enabled);
 
   const activePromo = useMemo(() => {
+    const isPromoEnabled = (promoType: PromoType): boolean => {
+      switch (promoType) {
+        case 'airdrop_banner':
+          // Don't show airdrop banner for watching wallets
+          return rnbwRewardsEnabled && !isWatchingWallet;
+        case 'degen_mode':
+          return degenModeEnabled;
+        default:
+          return true;
+      }
+    };
+
     const pagePromos = promosByPage[page];
     return (
       pagePromos.find(
-        (promoType) =>
-          !seenPromos[promoType] && isPromoEnabled(promoType, isWatchingWallet),
+        (promoType) => !seenPromos[promoType] && isPromoEnabled(promoType),
       ) ?? null
     );
-  }, [page, seenPromos, isWatchingWallet]);
+  }, [
+    page,
+    seenPromos,
+    isWatchingWallet,
+    rnbwRewardsEnabled,
+    degenModeEnabled,
+  ]);
 
   return {
     activePromo,
