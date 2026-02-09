@@ -232,6 +232,7 @@ const useGas = ({
         waitTime: 0,
       });
       setCustomLegacySpeed(newCustomSpeed);
+      return newCustomSpeed;
     },
     enabled:
       !!gasData &&
