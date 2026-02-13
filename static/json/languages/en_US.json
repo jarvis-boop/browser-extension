@@ -689,6 +689,8 @@
     "revoke": {
       "title": "Revoke Delegation",
       "subtitle": "Remove delegation from this contract",
+      "security_title": "Security Alert",
+      "security_subtitle": "An unknown delegation was detected. Revoke it to secure your wallet.",
       "security_notice": "Security Notice",
       "chain_label": "Chain",
       "contract_label": "Contract",
@@ -701,6 +703,10 @@
       "done": "Done",
       "next": "Next",
       "confirm_hw": "Confirm on Device"
+    },
+    "proactive_revoke": {
+      "title": "Security Alert",
+      "description": "An unknown delegation was detected. Revoke to secure your wallet."
     },
     "confirm_disable": {
       "title": "Disable Smart Wallet",

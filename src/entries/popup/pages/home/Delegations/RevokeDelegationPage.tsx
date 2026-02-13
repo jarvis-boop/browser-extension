@@ -51,11 +51,14 @@ import { SmartWalletLockIcon } from './SmartWalletLockIcon';
 // Default gas limit for delegation revoke transactions
 const DEFAULT_GAS_LIMIT = 100000n;
 
+type RevokeReason = 'settings' | 'security_alert';
+
 interface LocationState {
   delegationsToRevoke: DelegationToRevoke[];
   initialIndex?: number;
   backTo?: string;
   isDisabling?: boolean;
+  revokeReason?: RevokeReason;
 }
 
 export const RevokeDelegationPage = () => {
@@ -80,13 +83,20 @@ export const RevokeDelegationPage = () => {
     () => (location.state as LocationState)?.delegationsToRevoke || [],
     [location.state],
   );
+  const revokeReason: RevokeReason =
+    (location.state as LocationState)?.revokeReason ?? 'settings';
+  const isSecurityAlert = revokeReason === 'security_alert';
+
   const currentDelegation = delegationsToRevoke[currentIndex];
   const isLastDelegation = currentIndex === delegationsToRevoke.length - 1;
 
   // Reset state when component mounts or delegations change
   useEffect(() => {
     if (delegationsToRevoke.length === 0) {
-      navigate(ROUTES.SETTINGS__DELEGATIONS, { replace: true });
+      const backTo =
+        (location.state as LocationState)?.backTo ||
+        ROUTES.SETTINGS__DELEGATIONS;
+      navigate(backTo, { replace: true });
       return;
     }
     // Reset to first delegation if we're starting fresh
@@ -214,7 +224,9 @@ export const RevokeDelegationPage = () => {
               replace: true,
             });
           } else {
-            navigate(ROUTES.SETTINGS__DELEGATIONS, { replace: true });
+            const backTo =
+              locationState?.backTo || ROUTES.SETTINGS__DELEGATIONS;
+            navigate(backTo, { replace: true });
           }
         } else {
           // Move to next delegation using replace to avoid route stack buildup
@@ -225,8 +237,9 @@ export const RevokeDelegationPage = () => {
             state: {
               delegationsToRevoke,
               initialIndex: nextIndex,
-              backTo: ROUTES.SETTINGS__DELEGATIONS,
+              backTo: locationState?.backTo || ROUTES.SETTINGS__DELEGATIONS,
               isDisabling: locationState?.isDisabling,
+              revokeReason: locationState?.revokeReason,
             },
           });
           // State will be reset by useEffect above
@@ -288,8 +301,9 @@ export const RevokeDelegationPage = () => {
         state: {
           delegationsToRevoke,
           initialIndex: nextIndex,
-          backTo: ROUTES.SETTINGS__DELEGATIONS,
+          backTo: locationState?.backTo || ROUTES.SETTINGS__DELEGATIONS,
           isDisabling: locationState?.isDisabling,
+          revokeReason: locationState?.revokeReason,
         },
       });
       return;
@@ -355,7 +369,11 @@ export const RevokeDelegationPage = () => {
       }}
     >
       <Navbar
-        title={i18n.t('delegations.revoke.title')}
+        title={
+          isSecurityAlert
+            ? i18n.t('delegations.revoke.security_title')
+            : i18n.t('delegations.revoke.title')
+        }
         titleTestId="revoke-delegation-title"
         leftComponent={<Navbar.BackButton onClick={handleCancel} />}
       />
@@ -372,7 +390,16 @@ export const RevokeDelegationPage = () => {
       >
         <Stack space="24px" alignHorizontal="center">
           {/* Icon */}
-          <SmartWalletLockIcon size={40} />
+          {isSecurityAlert ? (
+            <Symbol
+              symbol="exclamationmark.triangle.fill"
+              size={40}
+              weight="bold"
+              color="red"
+            />
+          ) : (
+            <SmartWalletLockIcon size={40} />
+          )}
 
           {/* Subtitle */}
           <Text
@@ -381,7 +408,9 @@ export const RevokeDelegationPage = () => {
             align="center"
             color="labelSecondary"
           >
-            {i18n.t('delegations.revoke.subtitle')}
+            {isSecurityAlert
+              ? i18n.t('delegations.revoke.security_subtitle')
+              : i18n.t('delegations.revoke.subtitle')}
           </Text>
 
           {/* Details Section */}
