@@ -1,14 +1,11 @@
-import { RequestArguments, RequestResponse } from '@rainbow-me/provider';
+import { ProviderRequestPayload, RequestResponse } from '~/core/provider/types';
 
 import { bridgeMessenger } from '../messengers/internal/bridge';
-import { CallbackOptions } from '../messengers/internal/createMessenger';
 
 import { createTransport } from './internal/createTransport';
 
-export type ProviderRequestPayload = RequestArguments & {
-  id: number;
-  meta?: CallbackOptions;
-};
+// Re-export types for convenience
+export type { ProviderRequestPayload };
 type ProviderResponse = RequestResponse;
 
 /**

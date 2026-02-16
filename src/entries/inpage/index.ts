@@ -1,9 +1,9 @@
-import { RainbowProvider } from '@rainbow-me/provider';
 import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
 
 import { initializeMessenger } from '~/core/messengers';
+import { RainbowProvider } from '~/core/provider';
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
 import { providerRequestTransport } from '~/core/transports';
 import { ChainId } from '~/core/types/chains';

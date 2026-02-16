@@ -1,22 +1,22 @@
-import {
-  AddEthereumChainProposedChain,
-  handleProviderRequest as rnbwHandleProviderRequest,
-} from '@rainbow-me/provider';
 import { Chain, UserRejectedRequestError } from 'viem';
 
 import { event } from '~/analytics/event';
 import { queueEventTracking } from '~/analytics/queueEvent';
 import { hasVault, isInitialized, isPasswordSet } from '~/core/keychain';
 import { Messenger } from '~/core/messengers';
-import { CallbackOptions } from '~/core/messengers/internal/createMessenger';
+import {
+  AddEthereumChainProposedChain,
+  CallbackOptions,
+  ProviderRequestPayload,
+  handleProviderRequest as portalHandleProviderRequest,
+} from '~/core/provider';
+import { getDappHost, isValidUrl } from '~/core/provider/utils';
 import { useAppSessionsStore, useNotificationWindowStore } from '~/core/state';
 import { useNetworkStore } from '~/core/state/networks/networks';
 import { usePendingRequestStore } from '~/core/state/requests';
 import { SessionStorage } from '~/core/storage';
 import { providerRequestTransport } from '~/core/transports';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
 import { isCustomChain } from '~/core/utils/chains';
-import { getDappHost, isValidUrl } from '~/core/utils/connectedApps';
 import { POPUP_DIMENSIONS } from '~/core/utils/dimensions';
 import { WELCOME_URL, goToNewTab } from '~/core/utils/tabs';
 import { getProvider } from '~/core/viem/clientToProvider';
@@ -83,7 +83,6 @@ const openWindowForTabId = async (tabId: string) => {
 
 /**
  * Uses extensionMessenger to send messages to popup for the user to approve or reject
- * @param {PendingRequest} request
  */
 const messengerProviderRequest = async (request: ProviderRequestPayload) => {
   const { addPendingRequest, waitForPendingRequest } =
@@ -131,7 +130,7 @@ const resetRateLimit = async (host: string, second: boolean) => {
   return SessionStorage.set('rateLimits', rateLimits);
 };
 
-const checkRateLimit = async ({
+const checkRateLimitInternal = async ({
   url,
   host,
   name,
@@ -236,7 +235,7 @@ export const handleProviderRequest = ({
 }: {
   inpageMessenger: Messenger;
 }) =>
-  rnbwHandleProviderRequest({
+  portalHandleProviderRequest({
     providerRequestTransport: providerRequestTransport,
     isSupportedChain: (chainId: number) =>
       !!useNetworkStore.getState().getBackendSupportedChain(chainId) ||
@@ -250,7 +249,6 @@ export const handleProviderRequest = ({
     getChainNativeCurrency: (chainId: number) =>
       useNetworkStore.getState().getChain(chainId)?.nativeCurrency,
     getFeatureFlags: () => ({
-      // TODO: Populate with the remote config feature flag
       custom_rpc: true,
     }),
     getProvider: getProvider,
@@ -330,11 +328,12 @@ export const handleProviderRequest = ({
       const host = (isValidUrl(url) && getDappHost(url)) || '';
       const name = meta?.sender.tab?.title || host;
       if (!skipRateLimitCheck(method)) {
-        const rateLimited = await checkRateLimit({ url, host, name });
+        const rateLimited = await checkRateLimitInternal({ url, host, name });
         if (rateLimited) {
-          return { id, error: <Error>new Error('Rate Limit Exceeded') };
+          return { id, error: new Error('Rate Limit Exceeded') };
         }
       }
+      return undefined;
     },
     onSwitchEthereumChainNotSupported: ({
       proposedChain,
