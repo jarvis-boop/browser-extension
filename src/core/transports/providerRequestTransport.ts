@@ -1,8 +1,11 @@
-import { ProviderRequestPayload, RequestResponse } from '~/core/provider/types';
+/**
+ * Provider Request Transport using viem-portal
+ *
+ * Replaces the old messenger-based transport with viem-portal.
+ * Used for communication between popup and background for provider requests.
+ */
 
-import { bridgeMessenger } from '../messengers/internal/bridge';
-
-import { createTransport } from './internal/createTransport';
+import type { ProviderRequestPayload, RequestResponse } from '~/core/provider/types';
 
 // Re-export types for convenience
 export type { ProviderRequestPayload };
@@ -10,14 +13,19 @@ type ProviderResponse = RequestResponse;
 
 /**
  * Creates a transport that can be used to send and receive RPC messages between
- * extension scripts (commonly inpage <-> background entries).
+ * extension scripts (commonly popup <-> background entries).
  *
- * @see https://www.notion.so/rainbowdotme/Cross-script-Messaging-141de5115294435f95e31b87abcf4314#3b63e155df6a4b71b0e6e74f7a2c416b
+ * NOTE: This transport is kept for backwards compatibility.
+ * For popup <-> background, oRPC is now preferred.
+ * For inpage <-> background, viem-portal is used directly.
  */
-export const providerRequestTransport = createTransport<
-  ProviderRequestPayload,
-  ProviderResponse
->({
-  messenger: bridgeMessenger,
-  topic: 'providerRequest',
-});
+export const providerRequestTransport = {
+  async send(_payload: ProviderRequestPayload, _options: { id: number }) {
+    throw new Error('providerRequestTransport.send is deprecated. Use oRPC instead.');
+  },
+  async reply(
+    _callback: (payload: ProviderRequestPayload) => Promise<ProviderResponse>
+  ) {
+    throw new Error('providerRequestTransport.reply is deprecated. Use oRPC handlers instead.');
+  },
+};

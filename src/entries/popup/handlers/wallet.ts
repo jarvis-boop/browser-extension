@@ -49,7 +49,7 @@ import {
   signMessageByTypeFromTrezor,
   signTransactionFromTrezor,
 } from './trezor';
-import { walletAction } from './walletAction';
+import { executeRapAction, signTypedDataAction } from './walletAction';
 import { HARDWARE_WALLETS } from './walletVariables';
 
 export const signTransactionFromHW = async (
@@ -208,7 +208,7 @@ export async function executeRap<T extends RapTypes>({
     rapActionParameters: { ...rapActionParameters, nonce },
     type,
   };
-  return walletAction('execute_rap', params);
+  return executeRapAction(params);
 }
 
 export const personalSign = async (
@@ -250,10 +250,7 @@ export const signTypedData = async (
         throw new Error('Unsupported hardware wallet');
     }
   } else {
-    return walletAction('sign_typed_data', {
-      address,
-      message,
-    });
+    return signTypedDataAction(address, message);
   }
 };
 

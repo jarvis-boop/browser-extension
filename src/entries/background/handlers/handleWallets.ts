@@ -1,20 +1,9 @@
 import { Address } from 'viem';
 
-import { executeRap, signTypedData } from '~/core/keychain';
-import { initializeMessenger } from '~/core/messengers';
-import { WalletExecuteRapProps } from '~/core/raps/references';
 import {
   PersonalSignMessage,
   TypedDataMessage,
 } from '~/core/types/messageSigning';
-import { WalletAction } from '~/core/types/walletActions';
-import { getProvider } from '~/core/viem/clientToProvider';
-import { logger } from '~/logger';
-
-type WalletActionArguments = {
-  action: WalletAction;
-  payload: unknown;
-};
 
 export type SignMessageArguments = {
   address: Address;
@@ -25,67 +14,14 @@ export type SignTypedDataArguments = {
   message: TypedDataMessage;
 };
 
-const messenger = initializeMessenger({ connect: 'popup' });
-
 /**
  * Handles wallet related requests
+ * 
+ * NOTE: This handler is no longer needed as wallet actions are now
+ * handled via oRPC in the walletActionHandler.
+ * Kept for backwards compatibility - does nothing.
  */
-export const handleWallets = () =>
-  messenger.reply(
-    'wallet_action',
-    async ({ action, payload }: WalletActionArguments) => {
-      try {
-        let response = null;
-        switch (action) {
-          // TODO: needs to be refactored as part of a bigger rap refactor
-          case 'execute_rap': {
-            const p = payload as WalletExecuteRapProps;
-            const provider = getProvider({
-              chainId: p.rapActionParameters.chainId,
-            });
-            response = await executeRap({
-              ...p,
-              provider,
-            });
-            break;
-          }
-          case 'sign_typed_data': {
-            response = await signTypedData(payload as SignTypedDataArguments);
-            break;
-          }
-
-          case 'status':
-          case 'lock':
-          case 'update_password':
-          case 'wipe':
-          case 'unlock':
-          case 'verify_password':
-          case 'create':
-          case 'import':
-          case 'import_hw':
-          case 'add':
-          case 'add_account_at_index':
-          case 'remove':
-          case 'derive_accounts_from_secret':
-          case 'is_mnemonic_in_vault':
-          case 'get_accounts':
-          case 'get_wallets':
-          case 'get_wallet':
-          case 'get_path':
-          case 'export_wallet':
-          case 'export_account':
-          case 'send_transaction':
-          case 'personal_sign':
-          case 'test_sandbox':
-            logger.warn(`Deprecated action: ${action}`);
-            throw new Error(`Deprecated action: ${action}`);
-          default: {
-            throw new Error(`Unknown action: ${action}`);
-          }
-        }
-        return { result: response };
-      } catch (error) {
-        return { error: (error as Error).message };
-      }
-    },
-  );
+export const handleWallets = () => {
+  // Wallet actions are now handled via oRPC
+  // This function is kept for backwards compatibility
+};

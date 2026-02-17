@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { Hex } from 'viem';
 
-import { initializeMessenger } from '~/core/messengers';
 import { HWSigningRequest, HWSigningResponse } from '~/core/types/hw';
+import { listenForHWRequests } from '~/core/utils/hwRequestBridge';
 
 import {
   personalSign,
@@ -43,19 +43,10 @@ const processHwSigningRequest = async (
   }
 };
 
-const bgMessenger = initializeMessenger({ connect: 'background' });
-
 export const HWRequestListener = () => {
   useEffect(() => {
-    const removeListener = bgMessenger.reply<
-      HWSigningRequest,
-      HWSigningResponse
-    >('hwRequest', async (data) => {
-      return await processHwSigningRequest(data);
-    });
-    return () => {
-      removeListener();
-    };
+    const cleanup = listenForHWRequests(processHwSigningRequest);
+    return cleanup;
   }, []);
 
   return null;

@@ -3,16 +3,15 @@
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { Provider } from '@ethersproject/providers';
-import { Address, TypedDataDefinition } from 'viem';
+import { Address, Hex, TypedDataDefinition } from 'viem';
 
-import { Messenger, initializeMessenger } from '../messengers';
 import {
   HWSigningAction,
   HWSigningRequest,
-  HWSigningResponse,
 } from '../types/hw';
 import { PersonalSignMessage, TypedDataMessage } from '../types/messageSigning';
 import { defineReadOnly } from '../utils/define';
+import { sendHWRequestToPopup } from '../utils/hwRequestBridge';
 
 import type { HardwareWalletVendor } from './keychainTypes/hardwareWalletKeychain';
 
@@ -22,7 +21,7 @@ export class HWSigner extends Signer {
   readonly deviceId: string | undefined;
   readonly address: Address | undefined;
   readonly vendor: HardwareWalletVendor;
-  readonly messenger: Messenger;
+  
   constructor(
     provider: Provider,
     path: string,
@@ -38,7 +37,6 @@ export class HWSigner extends Signer {
     this.vendor = vendor;
     defineReadOnly(this, 'vendor', vendor);
     defineReadOnly(this, 'provider', provider || null);
-    this.messenger = initializeMessenger({ connect: 'popup' });
   }
 
   async getAddress(): Promise<Address> {
@@ -52,20 +50,13 @@ export class HWSigner extends Signer {
     action: TAction,
     payload: Extract<HWSigningRequest, { action: TAction }>['payload'],
   ): Promise<string> {
-    const response = await this.messenger.send<
-      HWSigningRequest,
-      HWSigningResponse
-    >('hwRequest', {
+    const response = await sendHWRequestToPopup(
       action,
-      vendor: this.vendor,
-      payload,
-    } as HWSigningRequest);
+      this.vendor,
+      payload
+    );
 
-    if (typeof response === 'string') {
-      return response;
-    } else {
-      throw new Error(response.error || 'Hardware wallet signing failed');
-    }
+    return response;
   }
 
   async signMessage(message: string): Promise<string> {

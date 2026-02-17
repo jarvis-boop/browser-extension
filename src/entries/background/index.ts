@@ -1,6 +1,5 @@
 import { uuid4 } from '@sentry/core';
 
-import { initializeMessenger } from '~/core/messengers';
 import { initializeSentry } from '~/core/sentry';
 import { localStorageRecycler } from '~/core/storage/localStorageRecycler';
 
@@ -23,10 +22,9 @@ handleOpenExtensionShortcut();
 
 startPopupRouter();
 
-const inpageMessenger = initializeMessenger({ connect: 'inpage' });
-
+// Initialize handlers
 handleInstallExtension();
-handleProviderRequest({ inpageMessenger });
+handleProviderRequest();
 handleTabAndWindowUpdates();
 handlePrefetchDappMetadata();
 handleSetupInpage();

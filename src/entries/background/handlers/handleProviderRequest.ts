@@ -11,12 +11,7 @@ import { handlePortalHost } from './handlePortalHost';
  * Initialize the provider request handler via viem-portal
  * This sets up the portal host to handle incoming RPC requests
  */
-export const handleProviderRequest = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  inpageMessenger,
-}: {
-  inpageMessenger: unknown;
-}) => {
+export const handleProviderRequest = () => {
   // Initialize the viem-portal host
   handlePortalHost();
 };

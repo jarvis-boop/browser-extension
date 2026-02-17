@@ -40,6 +40,11 @@ export interface PortalHostConfig {
   }) => Promise<unknown>;
   // Using unknown for provider to allow different provider types
   getProvider: (chainId?: number) => unknown;
+  // Event callbacks for inpage notifications
+  onAccountsChanged?: (host: string, accounts: Address[]) => void;
+  onChainChanged?: (host: string, chainId: number) => void;
+  onConnect?: (host: string, info: { chainId: string }) => void;
+  onDisconnect?: (host: string) => void;
 }
 
 /**
@@ -64,6 +69,12 @@ export type ProviderSchema = {
     params: [action: string, payload: unknown];
     result: unknown;
   };
+  // Event subscription methods (for background -> inpage events)
+  subscribe_accountsChanged: { params: [accounts: Address[]]; result: void };
+  subscribe_chainChanged: { params: [chainId: number]; result: void };
+  subscribe_disconnect: { params: []; result: void };
+  subscribe_connect: { params: [info: { chainId: string }]; result: void };
+  setDefaultProvider: { params: [rainbowAsDefault: boolean]; result: void };
 };
 
 export function createPortalHost(
@@ -179,6 +190,14 @@ export function createPortalHost(
     wallet_action: async () => {
       throw { code: ErrorCodes.UNSUPPORTED_METHOD, message: 'Not implemented' };
     },
+
+    // Subscription methods - no-op handlers for schema compliance
+    subscribe_accountsChanged: async () => {},
+    subscribe_chainChanged: async () => {},
+    subscribe_disconnect: async () => {},
+    subscribe_connect: async () => {},
+
+    setDefaultProvider: async () => {},
   };
 
   return createHost(transport, { handlers });
