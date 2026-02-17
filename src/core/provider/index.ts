@@ -1,21 +1,10 @@
 /**
- * Provider module - replaces @rainbow-me/provider
+ * Provider module - viem-portal based provider
  */
 
-export { RainbowProvider } from './RainbowProvider';
-export type { RainbowProviderOptions, Ethereum } from './RainbowProvider';
-
-export { handleProviderRequest } from './handleProviderRequest';
-export type { HandleProviderRequestOptions } from './handleProviderRequest';
-
-export { errorCodes } from './errorCodes';
-export type { ErrorCode } from './errorCodes';
+export { PortalProvider } from './PortalProvider';
 
 export * from './types';
-export {
-  buildError,
-  buildResponse,
-  toHex,
-  getDappHost,
-  isValidUrl,
-} from './utils';
+
+export { createPortalHost } from './handleProviderPortal';
+export type { PortalHostConfig } from './handleProviderPortal';
