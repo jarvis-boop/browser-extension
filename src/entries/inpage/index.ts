@@ -10,10 +10,6 @@ import { EIP1193Provider, announceProvider } from 'mipd';
 
 import { PortalProvider } from '~/core/provider/PortalProvider';
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
-import { ChainId } from '~/core/types/chains';
-
-import { injectNotificationIframe } from '../iframe';
-import { IN_DAPP_NOTIFICATION_STATUS } from '../iframe/notification';
 
 declare global {
   interface Window {
@@ -37,26 +33,11 @@ window.lodash = _.noConflict();
 // Create the provider
 const rainbowProvider = new PortalProvider();
 
-// Helper functions
-function getDappHost(url: string): string {
-  try {
-    const host = new URL(url).host;
-    return host.startsWith('www.') ? host.slice(4) : host;
-  } catch {
-    return '';
-  }
-}
-
 // Set up event forwarding from background via viem-portal
 // PortalProvider handles subscription to push events internally
 function setupEventListeners(): void {
-  // Listen for ethereumChainEvent to show notification iframe
-  // Other events (accountsChanged, chainChanged, connect, disconnect)
+  // All events (accountsChanged, chainChanged, connect, disconnect)
   // are handled internally by PortalProvider
-  rainbowProvider.on('connect', (info: unknown) => {
-    const data = info as { chainId: string };
-    // Could trigger notification here if needed
-  });
 }
 
 if (shouldInjectProvider()) {

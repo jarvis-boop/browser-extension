@@ -13,12 +13,10 @@ import { signTypedData as viemSignTypedData } from 'viem/accounts';
 
 /* eslint-disable boundaries/element-types */
 import {
+  type SignMessageArguments,
+  type SignTypedDataArguments,
   getMessageContent,
   isTypedDataMessage,
-} from '~/core/types/messageSigning';
-import type {
-  SignMessageArguments,
-  SignTypedDataArguments,
 } from '~/core/types/messageSigning';
 /* eslint-enable boundaries/element-types */
 

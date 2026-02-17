@@ -10,7 +10,6 @@ import { handlePrefetchDappMetadata } from './handlers/handlePrefetchMetadata';
 import { handleProviderRequest } from './handlers/handleProviderRequest';
 import { handleSetupInpage } from './handlers/handleSetupInpage';
 import { handleTabAndWindowUpdates } from './handlers/handleTabAndWindowUpdates';
-
 import { startPopupRouter } from './procedures/popup';
 
 require('../../core/utils/lockdown');

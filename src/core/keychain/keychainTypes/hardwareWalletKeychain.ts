@@ -4,11 +4,11 @@ import { Address } from 'viem';
 import { mainnet } from 'viem/chains';
 
 import { KeychainType } from '~/core/types/keychainTypes';
+import { getHDPathForVendorAndType } from '~/core/utils/hdPath';
 import { getProvider } from '~/core/viem/clientToProvider';
 
 import { HWSigner } from '../HWSigner';
 import { IKeychain, PrivateKey } from '../IKeychain';
-import { getHDPathForVendorAndType } from '~/core/utils/hdPath';
 
 export type HardwareWalletVendor = 'Ledger' | 'Trezor';
 

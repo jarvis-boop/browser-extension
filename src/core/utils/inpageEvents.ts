@@ -6,7 +6,6 @@
  */
 
 import type { Address } from 'viem';
-
 import type { PortalHost } from 'viem-portal';
 
 import type { ProviderSchema } from '~/core/provider/handleProviderPortal';
@@ -15,8 +14,6 @@ import type { ProviderSchema } from '~/core/provider/handleProviderPortal';
  * Get the portal host instance for pushing events
  */
 function getPortalHost(): PortalHost<ProviderSchema> | null {
-  // This will be set when startPortalHost() is called
-  // We import dynamically to avoid circular dependencies
   try {
     const { startPortalHost } = require('~/entries/background/handlers/handlePortalHost');
     return startPortalHost();
@@ -79,7 +76,10 @@ export async function sendConnectEvent(
 /**
  * Send disconnect event to inpage via viem-portal
  */
-export async function sendDisconnectEvent(_host: string): Promise<void> {
+export async function sendDisconnectEvent(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _host: string
+): Promise<void> {
   const host = getPortalHost();
   if (!host) return;
 

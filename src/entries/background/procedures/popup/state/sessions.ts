@@ -5,7 +5,6 @@ import { addressSchema } from '~/core/schemas/address';
 import { useAppConnectionWalletSwitcherStore } from '~/core/state/appConnectionWalletSwitcher/appConnectionSwitcher';
 import { useAppSessionsStore } from '~/core/state/appSessions';
 import { getDappHost, isValidUrl } from '~/core/utils/connectedApps';
-
 import {
   sendAccountsChangedEvent,
   sendChainChangedEvent,
