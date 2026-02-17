@@ -19,7 +19,7 @@ import {
   RapTypes,
   WalletExecuteRapProps,
 } from '~/core/raps/references';
-import { useGasStore } from '~/core/state';
+import { useCurrentChainIdStore, useGasStore } from '~/core/state';
 import {
   TransactionGasParams,
   TransactionLegacyGasParams,
@@ -47,13 +47,29 @@ import {
 import { executeRapAction, signTypedDataAction } from './walletAction';
 import { HARDWARE_WALLETS } from './walletVariables';
 
+/**
+ * Extract chainId from transaction request or fall back to current network.
+ * This allows the function to work with transaction requests that may or may not have chainId.
+ * - ethers TransactionRequest has .chainId property
+ * - If chainId is not present, falls back to current network chainId
+ */
+function getChainId(transactionRequest: TransactionRequest): number {
+  // Try to get chainId from the transaction request (ethers style)
+  if (transactionRequest.chainId !== undefined) {
+    return transactionRequest.chainId as number;
+  }
+  // Fall back to current network (viem style - chain is passed to client, not in tx)
+  return useCurrentChainIdStore.getState().currentChainId;
+}
+
 export const signTransactionFromHW = async (
   transactionRequest: TransactionRequest,
   vendor: string,
 ): Promise<Hex | undefined> => {
+  const chainId = getChainId(transactionRequest);
   const { selectedGas } = useGasStore.getState();
   const provider = getProvider({
-    chainId: transactionRequest.chainId,
+    chainId,
   });
   const gasLimit = await estimateGasWithPadding({
     transactionRequest,
@@ -62,7 +78,7 @@ export const signTransactionFromHW = async (
 
   const nonce = await getNextNonce({
     address: transactionRequest.from as Address,
-    chainId: transactionRequest.chainId as number,
+    chainId,
   });
 
   const params = {
@@ -82,9 +98,10 @@ export const signTransactionFromHW = async (
 export const sendTransaction = async (
   transactionRequest: TransactionRequest,
 ): Promise<TransactionResponse> => {
+  const chainId = getChainId(transactionRequest);
   const { selectedGas } = useGasStore.getState();
   const provider = getProvider({
-    chainId: transactionRequest.chainId,
+    chainId,
   });
   const gasLimit = await estimateGasWithPadding({
     transactionRequest,
@@ -95,7 +112,7 @@ export const sendTransaction = async (
     transactionRequest.nonce ??
     (await getNextNonce({
       address: transactionRequest.from as Address,
-      chainId: transactionRequest.chainId as number,
+      chainId,
     }));
 
   const transactionGasParams = {
