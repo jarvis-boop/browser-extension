@@ -7,37 +7,41 @@
 import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
-
-import {
-  createInpageClient,
-  createInpageProvider,
-  type InpageProvider,
-} from 'viem-inpage';
+import { createEip1193Provider, type Eip1193Provider } from 'viem-inpage';
 
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
 
 declare global {
   interface Window {
-    ethereum: InpageProvider;
+    ethereum: Eip1193Provider;
     lodash: unknown;
-    rainbow: InpageProvider;
-    providers: InpageProvider[];
+    rainbow: Eip1193Provider;
+    providers: Eip1193Provider[];
     rnbwWalletRouter: {
-      rainbowProvider: InpageProvider;
-      lastInjectedProvider?: InpageProvider;
-      currentProvider: InpageProvider;
-      providers: InpageProvider[];
+      rainbowProvider: Eip1193Provider;
+      lastInjectedProvider?: Eip1193Provider;
+      currentProvider: Eip1193Provider;
+      providers: Eip1193Provider[];
       setDefaultProvider: (rainbowAsDefault: boolean) => void;
-      addProvider: (provider: InpageProvider) => void;
+      addProvider: (provider: Eip1193Provider) => void;
     };
   }
 }
 
 window.lodash = _.noConflict();
 
+// Create a minimal client for the provider
+// The actual RPC will be handled by the background via viem-portal
+const mockClient = {
+  chain: { id: 1 },
+  account: undefined,
+  request: async () => {
+    throw new Error('RPC not configured - use viem-portal for actual requests');
+  },
+};
+
 // Create the provider using viem-inpage
-const client = createInpageClient();
-const rainbowProvider = createInpageProvider(client);
+const rainbowProvider = createEip1193Provider(mockClient);
 
 if (shouldInjectProvider()) {
   // Create a copy without isMetaMask for EIP-6963
@@ -90,7 +94,7 @@ if (shouldInjectProvider()) {
             window.rnbwWalletRouter.currentProvider = nonDefaultProvider;
           }
         },
-        addProvider(provider: InpageProvider) {
+        addProvider(provider: Eip1193Provider) {
           if (!window.rnbwWalletRouter?.providers?.includes(provider)) {
             window.rnbwWalletRouter?.providers?.push(provider);
           }

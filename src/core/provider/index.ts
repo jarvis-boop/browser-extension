@@ -2,7 +2,7 @@
  * Provider module - viem-inpage based provider
  */
 
-export { InpageProvider, createInpageClient, createInpageProvider } from 'viem-inpage';
+export { createEip1193Provider, Eip1193Provider } from 'viem-inpage';
 
 export * from './types';
 
