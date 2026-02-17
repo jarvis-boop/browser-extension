@@ -8,8 +8,8 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { TransactionRequest } from '@ethersproject/providers';
 import {
-  type Address,
-  type Hex,
+  Address,
+  Hex,
   TransactionSerializableEIP1559,
   TransactionSerializableLegacy,
 } from 'viem';
@@ -122,12 +122,13 @@ export async function signTransactionFromHW(
 export async function sendTransactionFromHW(
   transaction: TransactionRequest,
   vendor: HardwareWalletVendor,
-): Promise<Hex> {
-  const signed = await signTransactionFromHW(transaction, vendor);
-  const chainId = transaction.chainId ? Number(transaction.chainId) : 1;
-  const provider = getProvider({ chainId });
-  await provider.waitForTransaction(signed);
-  return signed;
+): Promise<TransactionResponse> {
+  const serializedTransaction = await signTransactionFromHW(
+    transaction,
+    vendor,
+  );
+  const provider = getProvider({ chainId: transaction.chainId });
+  return provider.sendTransaction(serializedTransaction);
 }
 
 /**

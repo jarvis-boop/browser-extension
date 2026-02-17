@@ -1,5 +1,9 @@
-import { TransactionRequest } from '@ethersproject/abstract-provider';
-import { type Address, type Hex, keccak256 } from 'viem';
+import {
+  TransactionRequest,
+  TransactionResponse,
+} from '@ethersproject/abstract-provider';
+import { BigNumber } from '@ethersproject/bignumber';
+import { Address, Hex, keccak256 } from 'viem';
 import {
   AppNotOpenError,
   DeviceLockedError,
@@ -93,7 +97,7 @@ export const signTransactionFromHW = async (
 
 export const sendTransaction = async (
   transactionRequest: TransactionRequest,
-): Promise<Hex> => {
+): Promise<TransactionResponse> => {
   const chainId = getChainId(transactionRequest);
   const { selectedGas } = useGasStore.getState();
   const provider = getProvider({
@@ -159,7 +163,32 @@ export const sendTransaction = async (
     return sendHW(params, vendor as 'Ledger' | 'Trezor');
   } else {
     const transaction = await popupClient.wallet.sendTransaction(params);
-    return transaction.hash;
+
+    const transactionResponse: TransactionResponse = {
+      ...transaction,
+      wait: async () => {
+        throw new Error('Not implemented');
+      },
+      to: transaction.to ?? undefined,
+      gasLimit: BigNumber.from(transaction.gasLimit),
+      value: BigNumber.from(transaction.value),
+      gasPrice:
+        transaction.gasPrice !== undefined && transaction.gasPrice !== null
+          ? BigNumber.from(transaction.gasPrice)
+          : undefined,
+      maxFeePerGas:
+        transaction.maxFeePerGas !== undefined &&
+        transaction.maxFeePerGas !== null
+          ? BigNumber.from(transaction.maxFeePerGas)
+          : undefined,
+      maxPriorityFeePerGas:
+        transaction.maxPriorityFeePerGas !== undefined &&
+        transaction.maxPriorityFeePerGas !== null
+          ? BigNumber.from(transaction.maxPriorityFeePerGas)
+          : undefined,
+    };
+
+    return transactionResponse;
   }
 };
 
