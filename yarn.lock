@@ -9596,7 +9596,7 @@ __metadata:
     typescript: "npm:5.8.2"
     viem: "npm:2.40.3"
     viem-hw: "npm:0.1.2"
-    viem-portal: "npm:0.2.0"
+    viem-portal: "npm:0.2.1"
     vitest: "npm:4.0.14"
     web-ext: "npm:7.6.2"
     webpack: "npm:5.94.0"
@@ -23559,15 +23559,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem-portal@npm:0.2.0":
-  version: 0.2.0
-  resolution: "viem-portal@npm:0.2.0"
+"viem-portal@npm:0.2.1":
+  version: 0.2.1
+  resolution: "viem-portal@npm:0.2.1"
   peerDependencies:
     viem: ">=2.0.0"
   peerDependenciesMeta:
     viem:
       optional: true
-  checksum: 10c0/21afe10c66a7b6c63552d0772d37461f40fccf0b2dffc70327da67c1ba45d31d97422841543083e3167221ae5433aa96e81d6e247d6ea0372162dd6e5d34b748
+  checksum: 10c0/3b055e935f6426adf5de93cb88764adc8a5756315c94322f11b26e2aebf84908930f8797c5adce6fe499014b730bebfd7bca8a281efca9b319d32fdc21597c6b
   languageName: node
   linkType: hard
 
