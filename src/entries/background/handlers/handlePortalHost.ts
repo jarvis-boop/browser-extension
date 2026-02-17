@@ -4,18 +4,19 @@
  * Handles incoming RPC requests from inpage via the portal transport.
  */
 
-import { type PortalHost, createPortalHost, ErrorCodes } from '~/core/portal';
-import type { ProviderPortalSchema } from '~/core/portal/schema';
+import { createPortalHost, ErrorCodes } from '~/core/provider/handleProviderPortal';
 import { useAppSessionsStore } from '~/core/state';
 import { useNetworkStore } from '~/core/state/networks/networks';
 import { getProvider } from '~/core/viem/clientToProvider';
 
-let portalHost: PortalHost<ProviderPortalSchema> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let portalHost: any = null;
 
 /**
  * Initialize the portal host for handling provider requests
  */
-export function startPortalHost(): PortalHost<ProviderPortalSchema> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function startPortalHost(): any {
   if (portalHost) {
     return portalHost;
   }

@@ -1,15 +1,13 @@
 /**
  * Portal Provider - EIP-1193 provider using viem-portal
  *
- * Replaces the old RainbowProvider with a simpler implementation
- * that uses viem-portal for typed RPC communication.
+ * Simple EIP-1193 provider that forwards requests via viem-portal.
  */
 
 import { EventEmitter } from 'eventemitter3';
-import { type PortalClient, createClient } from 'viem-portal';
+import { createClient } from 'viem-portal';
 
-import type { ProviderPortalSchema } from './schema';
-import { createWindowTransport } from './transports';
+import { createWindowTransport, type Transport } from '~/core/portal';
 
 export type ChainIdHex = `0x${string}`;
 
@@ -25,29 +23,23 @@ export class PortalProvider extends EventEmitter {
   networkVersion = '1';
   selectedAddress: string | undefined;
 
-  private client: PortalClient<ProviderPortalSchema>;
+  // Using any for client to avoid complex schema typing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private client: any;
 
   constructor() {
     super();
     const transport = createWindowTransport();
-    this.client = createClient<ProviderPortalSchema>(transport);
+    this.client = createClient(transport as Transport);
 
-    // Bind methods for EIP-6963 compatibility
     this.request = this.request.bind(this);
     this.enable = this.enable.bind(this);
     this.isConnected = this.isConnected.bind(this);
   }
 
-  /**
-   * Set up event listeners from background
-   * These would be handled via push messages from background
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setupListeners(_host: string): void {}
 
-  /**
-   * @deprecated Use eth_requestAccounts via request()
-   */
   async enable(): Promise<unknown> {
     return this.request({ method: 'eth_requestAccounts' });
   }
@@ -56,9 +48,6 @@ export class PortalProvider extends EventEmitter {
     return this.connected;
   }
 
-  /**
-   * EIP-1193 request method
-   */
   async request({
     method,
     params,
@@ -66,10 +55,8 @@ export class PortalProvider extends EventEmitter {
     method: string;
     params?: unknown[];
   }): Promise<unknown> {
-    // Forward all requests through the portal
     const result = await this.client.request('eth_request', method, params);
 
-    // Update internal state based on response
     if (method === 'eth_requestAccounts' && Array.isArray(result)) {
       this.selectedAddress = result[0] as string | undefined;
       this.connected = true;
@@ -81,9 +68,6 @@ export class PortalProvider extends EventEmitter {
     return result;
   }
 
-  /**
-   * @deprecated Use request() instead
-   */
   async sendAsync(
     args: { method: string; params?: unknown[] },
     callback: (error: Error | null, response: { result?: unknown }) => void,
@@ -96,9 +80,6 @@ export class PortalProvider extends EventEmitter {
     }
   }
 
-  /**
-   * @deprecated Use request() instead
-   */
   async send(
     methodOrPayload: string | { method: string; params?: unknown[] },
     paramsOrCallback?:
@@ -115,9 +96,6 @@ export class PortalProvider extends EventEmitter {
   }
 }
 
-/**
- * Create a provider instance
- */
 export function createPortalProvider(): PortalProvider {
   return new PortalProvider();
 }

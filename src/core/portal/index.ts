@@ -1,37 +1,22 @@
 /**
- * Portal module - viem-portal based messaging for browser extension
+ * Portal module - viem-portal transports for browser extension
  *
- * Replaces the old messenger system with typed RPC using viem-portal.
+ * Chrome extension-specific transport implementations.
+ * Generic typed RPC messaging - no Ethereum-specific logic.
  */
 
-// Schema and types
-export * from './schema';
+// Re-export viem-portal core
+export {
+  createClient,
+  createHost,
+  createLoopbackTransports,
+} from 'viem-portal';
+export type { Transport, PortalMessage, PortalClient, PortalHost, PortalSchema } from 'viem-portal';
 
-// Transports
+// Transport implementations
 export {
   createWindowTransport,
   createRuntimeTransport,
   createTabTransport,
   createRelayTransport,
 } from './transports';
-
-// Provider (for inpage)
-export { PortalProvider, createPortalProvider } from './provider';
-export type { ChainIdHex } from './provider';
-
-// Host (for background)
-export { createPortalHost, ErrorCodes } from './host';
-export type { PortalHostConfig } from './host';
-
-// Re-export viem-portal utilities
-export {
-  createClient,
-  createHost,
-  createLoopbackTransports,
-} from 'viem-portal';
-export type {
-  PortalClient,
-  PortalHost,
-  PortalSchema,
-  Transport,
-} from 'viem-portal';

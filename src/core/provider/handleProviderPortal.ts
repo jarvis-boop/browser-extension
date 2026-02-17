@@ -5,15 +5,11 @@
  * to the appropriate handlers.
  */
 
-import { type Address, isHex, recoverMessageAddress } from 'viem';
-import { type MethodHandlers, type PortalHost, createHost } from 'viem-portal';
+import { isHex, recoverMessageAddress } from 'viem';
+import { createHost } from 'viem-portal';
 
-import type { ProviderPortalSchema } from './schema';
-import { createTabTransport } from './transports';
+import { createTabTransport } from '~/core/portal';
 
-/**
- * Error codes (EIP-1193 / JSON-RPC)
- */
 export const ErrorCodes = {
   USER_REJECTED: 4001,
   UNAUTHORIZED: 4100,
@@ -25,47 +21,28 @@ export const ErrorCodes = {
   RATE_LIMITED: -32005,
 } as const;
 
-/**
- * Configuration for the portal host
- */
 export interface PortalHostConfig {
-  // Session management
-  getActiveSession: (
-    host: string,
-  ) => { address: Address; chainId: number } | null;
+  getActiveSession: (host: string) => { address: string; chainId: number } | null;
   removeSession: (host: string) => void;
   updateSessionChain: (host: string, chainId: number) => void;
-
-  // Chain support
   isSupportedChain: (chainId: number) => boolean;
   getChainRpcUrl: (chainId: number) => string | undefined;
-
-  // User approval
   requestApproval: (request: {
     method: string;
     params?: unknown[];
     host: string;
     tabId?: number;
   }) => Promise<unknown>;
-
-  // Provider for chain queries
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProvider: (chainId?: number) => any;
 }
 
-/**
- * Create the portal host for background script
- */
-export function createPortalHost(
-  config: PortalHostConfig,
-): PortalHost<ProviderPortalSchema> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createPortalHost(config: PortalHostConfig): any {
   const transport = createTabTransport();
 
-  // Type assertion needed because handler return types are complex
-  const handlers: MethodHandlers<ProviderPortalSchema> = {
-    // Main eth_request handler - routes all provider requests
+  const handlers = {
     eth_request: async ([method, params]: [string, unknown[]?]) => {
-      // TODO: Get host from request context when available
       const requestHost = '';
       const session = config.getActiveSession(requestHost);
 
@@ -83,7 +60,6 @@ export function createPortalHost(
           if (session) {
             return [session.address.toLowerCase()];
           }
-          // Need user approval
           return config.requestApproval({ method, params, host: requestHost });
 
         case 'eth_blockNumber':
@@ -104,7 +80,6 @@ export function createPortalHost(
         case 'eth_signTypedData':
         case 'eth_signTypedData_v3':
         case 'eth_signTypedData_v4':
-          // These all require user approval
           return config.requestApproval({ method, params, host: requestHost });
 
         case 'wallet_switchEthereumChain': {
@@ -112,14 +87,11 @@ export function createPortalHost(
           const targetChainId = parseInt(chainId, 16);
 
           if (session?.chainId === targetChainId) {
-            return null; // Already on chain
+            return null;
           }
 
           if (!config.isSupportedChain(targetChainId)) {
-            throw {
-              code: ErrorCodes.CHAIN_NOT_SUPPORTED,
-              message: 'Chain not supported',
-            };
+            throw { code: ErrorCodes.CHAIN_NOT_SUPPORTED, message: 'Chain not supported' };
           }
 
           config.updateSessionChain(requestHost, targetChainId);
@@ -135,10 +107,7 @@ export function createPortalHost(
         case 'personal_ecRecover': {
           const [message, signature] = params as [string, string];
           if (!message || !signature || !isHex(signature)) {
-            throw {
-              code: ErrorCodes.INVALID_PARAMS,
-              message: 'Invalid params',
-            };
+            throw { code: ErrorCodes.INVALID_PARAMS, message: 'Invalid params' };
           }
           return recoverMessageAddress({
             message,
@@ -151,41 +120,28 @@ export function createPortalHost(
           return null;
 
         default: {
-          // Forward unknown methods to provider
           const provider = config.getProvider(session?.chainId);
           return provider.send(method, params || []);
         }
       }
     },
 
-    // Session query
     getActiveSession: async ([host]: [string]) => {
       return config.getActiveSession(host);
     },
 
-    // Push notifications (no-op, these are sent from host to client)
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     chainChanged: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     accountsChanged: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     disconnect: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     connect: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     ethereumChainEvent: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     prefetchDappMetadata: async () => {},
 
-    // Internal wallet action handler
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    wallet_action: async ([action, payload]: [string, unknown]) => {
-      // This would be handled by the wallet service
+    wallet_action: async () => {
       throw { code: ErrorCodes.UNSUPPORTED_METHOD, message: 'Not implemented' };
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any;
+  };
 
-  const host = createHost<ProviderPortalSchema>(transport, { handlers });
-  return host;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return createHost(transport, { handlers } as any);
 }

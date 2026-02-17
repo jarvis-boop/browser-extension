@@ -8,7 +8,7 @@ import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
 
-import { PortalProvider } from '~/core/portal';
+import { PortalProvider } from '~/core/provider/PortalProvider';
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
 import { ChainId } from '~/core/types/chains';
 
