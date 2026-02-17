@@ -40,15 +40,10 @@ import { PathOptions } from '../pages/hw/addByIndexSheet';
 
 import { popupClient } from './background';
 import {
-  sendTransactionFromLedger,
-  signMessageByTypeFromLedger,
-  signTransactionFromLedger,
-} from './ledger';
-import {
-  sendTransactionFromTrezor,
-  signMessageByTypeFromTrezor,
-  signTransactionFromTrezor,
-} from './trezor';
+  sendTransactionFromHW as sendHW,
+  signTransactionFromHW as signHW,
+  signMessageByTypeFromHW,
+} from './hardwareWallet';
 import { executeRapAction, signTypedDataAction } from './walletAction';
 import { HARDWARE_WALLETS } from './walletVariables';
 
@@ -81,11 +76,7 @@ export const signTransactionFromHW = async (
     params.gasLimit = toHex(gasLimit);
   }
 
-  if (vendor === 'Ledger') {
-    return signTransactionFromLedger(params);
-  } else if (vendor === 'Trezor') {
-    return signTransactionFromTrezor(params);
-  }
+  return signHW(params, vendor as 'Ledger' | 'Trezor');
 };
 
 export const sendTransaction = async (
@@ -152,14 +143,7 @@ export const sendTransaction = async (
 
   // Check the type of account it is
   if (type === 'HardwareWalletKeychain') {
-    switch (vendor) {
-      case 'Ledger':
-        return sendTransactionFromLedger(params);
-      case 'Trezor':
-        return sendTransactionFromTrezor(params);
-      default:
-        throw new Error('Unsupported hardware wallet');
-    }
+    return sendHW(params, vendor as 'Ledger' | 'Trezor');
   } else {
     const transaction = await popupClient.wallet.sendTransaction(params);
 
@@ -217,14 +201,11 @@ export const personalSign = async (
 ): Promise<Hex> => {
   const { type, vendor } = await getWallet(address as Address);
   if (type === 'HardwareWalletKeychain') {
-    switch (vendor) {
-      case 'Ledger':
-        return signMessageByTypeFromLedger(message, address);
-      case 'Trezor':
-        return signMessageByTypeFromTrezor(message, address);
-      default:
-        throw new Error('Unsupported hardware wallet');
-    }
+    return signMessageByTypeFromHW(
+      message,
+      address,
+      vendor as 'Ledger' | 'Trezor',
+    );
   } else {
     return popupClient.wallet.personalSign({
       address,
@@ -240,15 +221,11 @@ export const signTypedData = async (
   const { type, vendor } = await getWallet(address as Address);
 
   if (type === 'HardwareWalletKeychain') {
-    switch (vendor) {
-      case 'Ledger':
-        return signMessageByTypeFromLedger(message, address);
-      case 'Trezor': {
-        return signMessageByTypeFromTrezor(message, address);
-      }
-      default:
-        throw new Error('Unsupported hardware wallet');
-    }
+    return signMessageByTypeFromHW(
+      message,
+      address,
+      vendor as 'Ledger' | 'Trezor',
+    );
   } else {
     return signTypedDataAction(address, message);
   }

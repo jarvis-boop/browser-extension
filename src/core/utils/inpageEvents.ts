@@ -15,7 +15,9 @@ import type { ProviderSchema } from '~/core/provider/handleProviderPortal';
  */
 function getPortalHost(): PortalHost<ProviderSchema> | null {
   try {
-    const { startPortalHost } = require('~/entries/background/handlers/handlePortalHost');
+    const {
+      startPortalHost,
+    } = require('~/entries/background/handlers/handlePortalHost');
     return startPortalHost();
   } catch {
     return null;
@@ -78,7 +80,7 @@ export async function sendConnectEvent(
  */
 export async function sendDisconnectEvent(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _host: string
+  _host: string,
 ): Promise<void> {
   const host = getPortalHost();
   if (!host) return;

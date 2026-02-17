@@ -7,8 +7,8 @@
 import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
+import { type Eip1193Provider, createEip1193Provider } from 'viem-inpage';
 import { createClient, createWindowTransport } from 'viem-portal';
-import { createEip1193Provider, type Eip1193Provider } from 'viem-inpage';
 
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
 

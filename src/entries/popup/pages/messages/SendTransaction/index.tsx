@@ -23,7 +23,7 @@ import { addNewTransaction } from '~/core/utils/transactions';
 import { Bleed, Box, Separator, Stack } from '~/design-system';
 import { triggerAlert } from '~/design-system/components/Alert/Alert';
 import { TransactionFee } from '~/entries/popup/components/TransactionFee/TransactionFee';
-import { showLedgerDisconnectedAlertIfNeeded } from '~/entries/popup/handlers/ledger';
+import { showLedgerDisconnectedAlertIfNeeded } from '~/entries/popup/handlers/hardwareWallet';
 import { useSendAsset } from '~/entries/popup/hooks/send/useSendAsset';
 import { useAppSession } from '~/entries/popup/hooks/useAppSession';
 import { useWallets } from '~/entries/popup/hooks/useWallets';

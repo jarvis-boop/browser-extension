@@ -17,7 +17,7 @@ import { getSigningRequestDisplayDetails } from '~/core/utils/signMessages';
 import { isLowerCaseMatch } from '~/core/utils/strings';
 import { Bleed, Box, Stack } from '~/design-system';
 import { triggerAlert } from '~/design-system/components/Alert/Alert';
-import { showLedgerDisconnectedAlertIfNeeded } from '~/entries/popup/handlers/ledger';
+import { showLedgerDisconnectedAlertIfNeeded } from '~/entries/popup/handlers/hardwareWallet';
 import { useAppSession } from '~/entries/popup/hooks/useAppSession';
 import { useWallets } from '~/entries/popup/hooks/useWallets';
 import { RainbowError, logger } from '~/logger';
