@@ -1,8 +1,8 @@
 /**
- * Provider module - viem-portal based provider
+ * Provider module - viem-inpage based provider
  */
 
-export { PortalProvider } from './PortalProvider';
+export { InpageProvider, createInpageClient, createInpageProvider } from 'viem-inpage';
 
 export * from './types';
 

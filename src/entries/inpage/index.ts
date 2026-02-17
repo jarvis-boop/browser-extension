@@ -1,48 +1,45 @@
 /**
  * Inpage script - injected into dapps
  *
- * Creates the window.ethereum provider using viem-portal.
+ * Creates the window.ethereum provider using viem-inpage.
  */
 
 import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
 
-import { PortalProvider } from '~/core/provider/PortalProvider';
+import {
+  createInpageClient,
+  createInpageProvider,
+  type InpageProvider,
+} from 'viem-inpage';
+
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
 
 declare global {
   interface Window {
-    ethereum: PortalProvider;
+    ethereum: InpageProvider;
     lodash: unknown;
-    rainbow: PortalProvider;
-    providers: PortalProvider[];
+    rainbow: InpageProvider;
+    providers: InpageProvider[];
     rnbwWalletRouter: {
-      rainbowProvider: PortalProvider;
-      lastInjectedProvider?: PortalProvider;
-      currentProvider: PortalProvider;
-      providers: PortalProvider[];
+      rainbowProvider: InpageProvider;
+      lastInjectedProvider?: InpageProvider;
+      currentProvider: InpageProvider;
+      providers: InpageProvider[];
       setDefaultProvider: (rainbowAsDefault: boolean) => void;
-      addProvider: (provider: PortalProvider) => void;
+      addProvider: (provider: InpageProvider) => void;
     };
   }
 }
 
 window.lodash = _.noConflict();
 
-// Create the provider
-const rainbowProvider = new PortalProvider();
-
-// Set up event forwarding from background via viem-portal
-// PortalProvider handles subscription to push events internally
-function setupEventListeners(): void {
-  // All events (accountsChanged, chainChanged, connect, disconnect)
-  // are handled internally by PortalProvider
-}
+// Create the provider using viem-inpage
+const client = createInpageClient();
+const rainbowProvider = createInpageProvider(client);
 
 if (shouldInjectProvider()) {
-  setupEventListeners();
-
   // Create a copy without isMetaMask for EIP-6963
   const providerCopy = Object.create(
     Object.getPrototypeOf(rainbowProvider),
@@ -93,7 +90,7 @@ if (shouldInjectProvider()) {
             window.rnbwWalletRouter.currentProvider = nonDefaultProvider;
           }
         },
-        addProvider(provider: PortalProvider) {
+        addProvider(provider: InpageProvider) {
           if (!window.rnbwWalletRouter?.providers?.includes(provider)) {
             window.rnbwWalletRouter?.providers?.push(provider);
           }
