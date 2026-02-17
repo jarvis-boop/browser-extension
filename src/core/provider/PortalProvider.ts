@@ -1,18 +1,18 @@
 /**
- * Portal Provider - EIP-1193 provider using viem-portal
+ * Portal Provider - Minimal EIP-1193 provider using viem-portal
  *
- * Simple EIP-1193 provider that forwards requests via viem-portal.
+ * Simple EIP-1193 provider for inpage (window.ethereum).
+ * For chain RPC, use viem with portalTransport instead.
  */
 
 import { EventEmitter } from 'eventemitter3';
 import { createClient } from 'viem-portal';
-
-import { createWindowTransport, type Transport } from 'viem-portal';
+import { createWindowTransport } from 'viem-portal';
 
 export type ChainIdHex = `0x${string}`;
 
 /**
- * Portal Provider - EIP-1193 compatible Ethereum provider
+ * Minimal EIP-1193 provider for dapps
  */
 export class PortalProvider extends EventEmitter {
   chainId: ChainIdHex | undefined;
@@ -23,38 +23,9 @@ export class PortalProvider extends EventEmitter {
   networkVersion = '1';
   selectedAddress: string | undefined;
 
-  // Using any for client to avoid complex schema typing
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private client: any;
+  private client = createClient(createWindowTransport());
 
-  constructor() {
-    super();
-    const transport = createWindowTransport();
-    this.client = createClient(transport as Transport);
-
-    this.request = this.request.bind(this);
-    this.enable = this.enable.bind(this);
-    this.isConnected = this.isConnected.bind(this);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setupListeners(_host: string): void {}
-
-  async enable(): Promise<unknown> {
-    return this.request({ method: 'eth_requestAccounts' });
-  }
-
-  isConnected(): boolean {
-    return this.connected;
-  }
-
-  async request({
-    method,
-    params,
-  }: {
-    method: string;
-    params?: unknown[];
-  }): Promise<unknown> {
+  async request({ method, params }: { method: string; params?: unknown[] }) {
     const result = await this.client.request('eth_request', method, params);
 
     if (method === 'eth_requestAccounts' && Array.isArray(result)) {
@@ -68,13 +39,21 @@ export class PortalProvider extends EventEmitter {
     return result;
   }
 
+  // Legacy EIP-1193 methods
+  async enable() {
+    return this.request({ method: 'eth_requestAccounts' });
+  }
+
+  isConnected() {
+    return this.connected;
+  }
+
   async sendAsync(
     args: { method: string; params?: unknown[] },
     callback: (error: Error | null, response: { result?: unknown }) => void,
-  ): Promise<void> {
+  ) {
     try {
-      const result = await this.request(args);
-      callback(null, { result });
+      callback(null, { result: await this.request(args) });
     } catch (error) {
       callback(error as Error, {});
     }
@@ -82,20 +61,11 @@ export class PortalProvider extends EventEmitter {
 
   async send(
     methodOrPayload: string | { method: string; params?: unknown[] },
-    paramsOrCallback?:
-      | unknown[]
-      | ((error: Error | null, response: unknown) => void),
-  ): Promise<unknown> {
+    paramsOrCallback?: unknown[] | ((error: Error | null, response: unknown) => void),
+  ) {
     if (typeof methodOrPayload === 'string') {
-      return this.request({
-        method: methodOrPayload,
-        params: paramsOrCallback as unknown[],
-      });
+      return this.request({ method: methodOrPayload, params: paramsOrCallback as unknown[] });
     }
     return this.request(methodOrPayload);
   }
-}
-
-export function createPortalProvider(): PortalProvider {
-  return new PortalProvider();
 }
