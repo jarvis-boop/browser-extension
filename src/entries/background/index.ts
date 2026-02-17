@@ -10,7 +10,7 @@ import { handlePrefetchDappMetadata } from './handlers/handlePrefetchMetadata';
 import { handleProviderRequest } from './handlers/handleProviderRequest';
 import { handleSetupInpage } from './handlers/handleSetupInpage';
 import { handleTabAndWindowUpdates } from './handlers/handleTabAndWindowUpdates';
-import { handleWallets } from './handlers/handleWallets';
+
 import { startPopupRouter } from './procedures/popup';
 
 require('../../core/utils/lockdown');
@@ -28,7 +28,7 @@ handleProviderRequest();
 handleTabAndWindowUpdates();
 handlePrefetchDappMetadata();
 handleSetupInpage();
-handleWallets();
+
 handleAutoLock();
 
 uuid4();

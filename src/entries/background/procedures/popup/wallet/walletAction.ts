@@ -1,7 +1,7 @@
 import { executeRap, signTypedData } from '~/core/keychain';
 import { WalletExecuteRapProps } from '~/core/raps/references';
 import { getProvider } from '~/core/viem/clientToProvider';
-import { SignTypedDataArguments } from '~/entries/background/handlers/handleWallets';
+import { SignTypedDataArguments } from '~/core/types/messageSigning';
 import { logger } from '~/logger';
 
 import { walletOs } from '../os';

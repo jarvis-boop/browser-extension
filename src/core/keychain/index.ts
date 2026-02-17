@@ -19,7 +19,7 @@ import {
 import type {
   SignMessageArguments,
   SignTypedDataArguments,
-} from '~/entries/background/handlers/handleWallets';
+} from '~/core/types/messageSigning';
 /* eslint-enable boundaries/element-types */
 
 import { walletExecuteRap } from '../raps/execute';
