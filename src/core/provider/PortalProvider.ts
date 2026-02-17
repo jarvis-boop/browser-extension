@@ -7,7 +7,7 @@
 import { EventEmitter } from 'eventemitter3';
 import { createClient } from 'viem-portal';
 
-import { createWindowTransport, type Transport } from '~/core/portal';
+import { createWindowTransport, type Transport } from 'viem-portal';
 
 export type ChainIdHex = `0x${string}`;
 

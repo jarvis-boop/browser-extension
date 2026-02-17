@@ -5,7 +5,7 @@
  * window.postMessage (inpage) and chrome.runtime (background).
  */
 
-import { createRelayTransport } from '~/core/portal';
+import { createRelayTransport } from 'viem-portal';
 // eslint-disable-next-line boundaries/element-types
 import { useIsDefaultWalletStore } from '~/core/state';
 require('../../core/utils/lockdown');

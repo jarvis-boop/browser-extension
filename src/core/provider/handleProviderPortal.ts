@@ -8,7 +8,7 @@
 import { isHex, recoverMessageAddress } from 'viem';
 import { createHost } from 'viem-portal';
 
-import { createTabTransport } from '~/core/portal';
+import { createTabTransport } from 'viem-portal';
 
 export const ErrorCodes = {
   USER_REJECTED: 4001,
