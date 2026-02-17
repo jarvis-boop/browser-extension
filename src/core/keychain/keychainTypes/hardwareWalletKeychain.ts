@@ -8,7 +8,7 @@ import { getProvider } from '~/core/viem/clientToProvider';
 
 import { HWSigner } from '../HWSigner';
 import { IKeychain, PrivateKey } from '../IKeychain';
-import { getHDPathForVendorAndType } from '../hdPath';
+import { getHDPathForVendorAndType } from '~/core/utils/hdPath';
 
 export type HardwareWalletVendor = 'Ledger' | 'Trezor';
 
