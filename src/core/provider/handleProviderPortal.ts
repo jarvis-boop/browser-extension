@@ -40,15 +40,10 @@ export interface PortalHostConfig {
   }) => Promise<unknown>;
   // Using unknown for provider to allow different provider types
   getProvider: (chainId?: number) => unknown;
-  // Event callbacks for inpage notifications
-  onAccountsChanged?: (host: string, accounts: Address[]) => void;
-  onChainChanged?: (host: string, chainId: number) => void;
-  onConnect?: (host: string, info: { chainId: string }) => void;
-  onDisconnect?: (host: string) => void;
 }
 
 /**
- * Minimal schema for provider RPC
+ * Minimal schema for provider RPC - only what's actually needed
  */
 export type ProviderSchema = {
   eth_request: {
@@ -59,22 +54,6 @@ export type ProviderSchema = {
     params: [host: string];
     result: { address: Address; chainId: number } | null;
   };
-  chainChanged: { params: [chainId: number]; result: void };
-  accountsChanged: { params: [accounts: Address[]]; result: void };
-  disconnect: { params: []; result: void };
-  connect: { params: [info: { chainId: string }]; result: void };
-  ethereumChainEvent: { params: [event: unknown]; result: void };
-  prefetchDappMetadata: { params: [url: string]; result: void };
-  wallet_action: {
-    params: [action: string, payload: unknown];
-    result: unknown;
-  };
-  // Event subscription methods (for background -> inpage events)
-  subscribe_accountsChanged: { params: [accounts: Address[]]; result: void };
-  subscribe_chainChanged: { params: [chainId: number]; result: void };
-  subscribe_disconnect: { params: []; result: void };
-  subscribe_connect: { params: [info: { chainId: string }]; result: void };
-  setDefaultProvider: { params: [rainbowAsDefault: boolean]; result: void };
 };
 
 export function createPortalHost(
@@ -112,10 +91,7 @@ export function createPortalHost(
         case 'eth_getCode':
         case 'eth_getLogs': {
           const provider = config.getProvider(session?.chainId) as {
-            request: (args: {
-              method: string;
-              params?: unknown[];
-            }) => Promise<unknown>;
+            request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
           };
           return provider.request({ method, params: params || [] });
         }
@@ -137,10 +113,7 @@ export function createPortalHost(
           }
 
           if (!config.isSupportedChain(targetChainId)) {
-            throw {
-              code: ErrorCodes.CHAIN_NOT_SUPPORTED,
-              message: 'Chain not supported',
-            };
+            throw { code: ErrorCodes.CHAIN_NOT_SUPPORTED, message: 'Chain not supported' };
           }
 
           config.updateSessionChain(requestHost, targetChainId);
@@ -156,10 +129,7 @@ export function createPortalHost(
         case 'personal_ecRecover': {
           const [message, signature] = params as [string, string];
           if (!message || !signature || !isHex(signature)) {
-            throw {
-              code: ErrorCodes.INVALID_PARAMS,
-              message: 'Invalid params',
-            };
+            throw { code: ErrorCodes.INVALID_PARAMS, message: 'Invalid params' };
           }
           return recoverMessageAddress({ message, signature });
         }
@@ -170,10 +140,7 @@ export function createPortalHost(
 
         default: {
           const provider = config.getProvider(session?.chainId) as {
-            request: (args: {
-              method: string;
-              params?: unknown[];
-            }) => Promise<unknown>;
+            request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
           };
           return provider.request({ method, params: params || [] });
         }
@@ -181,23 +148,6 @@ export function createPortalHost(
     },
 
     getActiveSession: async ([host]) => config.getActiveSession(host),
-    chainChanged: async () => {},
-    accountsChanged: async () => {},
-    disconnect: async () => {},
-    connect: async () => {},
-    ethereumChainEvent: async () => {},
-    prefetchDappMetadata: async () => {},
-    wallet_action: async () => {
-      throw { code: ErrorCodes.UNSUPPORTED_METHOD, message: 'Not implemented' };
-    },
-
-    // Subscription methods - no-op handlers for schema compliance
-    subscribe_accountsChanged: async () => {},
-    subscribe_chainChanged: async () => {},
-    subscribe_disconnect: async () => {},
-    subscribe_connect: async () => {},
-
-    setDefaultProvider: async () => {},
   };
 
   return createHost(transport, { handlers });
