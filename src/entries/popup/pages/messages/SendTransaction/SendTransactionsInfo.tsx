@@ -14,7 +14,7 @@ import {
 } from '~/core/state';
 import { useTestnetModeStore } from '~/core/state/currentSettings/testnetMode';
 import { useSelectedTokenStore } from '~/core/state/selectedToken';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import { ChainId } from '~/core/types/chains';
 import { getChain } from '~/core/utils/chains';
 import { copy, copyAddress } from '~/core/utils/copy';

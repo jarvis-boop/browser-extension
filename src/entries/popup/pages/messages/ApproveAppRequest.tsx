@@ -4,7 +4,7 @@ import React, { useCallback, useEffect } from 'react';
 import { useTestnetModeStore } from '~/core/state/currentSettings/testnetMode';
 import { useNotificationWindowStore } from '~/core/state/notificationWindow';
 import { usePendingRequestStore } from '~/core/state/requests';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import { TESTNET_MODE_BAR_HEIGHT } from '~/core/utils/dimensions';
 import { Box } from '~/design-system';
 

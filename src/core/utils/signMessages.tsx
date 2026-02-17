@@ -7,7 +7,7 @@ import {
 } from '~/core/types/messageSigning';
 import { RainbowError, logger } from '~/logger';
 
-import { ProviderRequestPayload } from '../transports/providerRequestTransport';
+import { ProviderRequestPayload } from '../provider/types';
 import { RPCMethod } from '../types/rpcMethods';
 
 import { sanitizeTypedData } from './ethereum';

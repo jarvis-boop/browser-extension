@@ -5,7 +5,7 @@ import { DAppStatus } from '~/core/graphql/__generated__/metadata';
 import { i18n } from '~/core/languages';
 import { useDappMetadata } from '~/core/resources/metadata/dapp';
 import { useCurrentCurrencyStore } from '~/core/state';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import { ChainId } from '~/core/types/chains';
 import { copy } from '~/core/utils/copy';
 import { getSigningRequestDisplayDetails } from '~/core/utils/signMessages';

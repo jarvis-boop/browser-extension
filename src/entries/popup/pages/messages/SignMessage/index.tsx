@@ -6,7 +6,7 @@ import { getWalletContext } from '~/analytics/util';
 import { i18n } from '~/core/languages';
 import { useDappMetadata } from '~/core/resources/metadata/dapp';
 import { useFeatureFlagsStore } from '~/core/state/currentSettings/featureFlags';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import {
   isPersonalSignMessage,
   isTypedDataMessage,

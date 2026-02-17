@@ -7,7 +7,7 @@ import { getWalletContext } from '~/analytics/util';
 import { useDappMetadata } from '~/core/resources/metadata/dapp';
 import { useCurrentAddressStore } from '~/core/state';
 import { useTestnetModeStore } from '~/core/state/currentSettings/testnetMode';
-import { ProviderRequestPayload } from '~/core/transports/providerRequestTransport';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import { ChainId } from '~/core/types/chains';
 import { getDappHostname } from '~/core/utils/connectedApps';
 import { Row, Rows, Separator } from '~/design-system';
