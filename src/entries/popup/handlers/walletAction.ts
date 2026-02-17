@@ -7,14 +7,17 @@ import { ExecuteRapResponse } from '~/core/types/transactions';
 import { popupClient } from './background';
 
 type WalletActionPayload =
-  | { action: 'sign_typed_data'; payload: { address: Address; message: TypedDataMessage } }
+  | {
+      action: 'sign_typed_data';
+      payload: { address: Address; message: TypedDataMessage };
+    }
   | { action: 'execute_rap'; payload: WalletExecuteRapProps };
 
 export const walletAction = async (
   input: WalletActionPayload,
 ): Promise<Hex | ExecuteRapResponse> => {
   const response = await popupClient.wallet.walletAction(input);
-  
+
   if ('result' in response) {
     return response.result as Hex | ExecuteRapResponse;
   }

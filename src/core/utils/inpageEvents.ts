@@ -43,7 +43,7 @@ export async function sendAccountsChangedEvent(
 ): Promise<void> {
   const tabId = await findTabIdByHost(host);
   if (!tabId) return;
-  
+
   try {
     await chrome.tabs.sendMessage(tabId, {
       type: 'rainbow_accountsChanged',
@@ -63,7 +63,7 @@ export async function sendChainChangedEvent(
 ): Promise<void> {
   const tabId = await findTabIdByHost(host);
   if (!tabId) return;
-  
+
   try {
     await chrome.tabs.sendMessage(tabId, {
       type: 'rainbow_chainChanged',
@@ -83,7 +83,7 @@ export async function sendConnectEvent(
 ): Promise<void> {
   const tabId = await findTabIdByHost(host);
   if (!tabId) return;
-  
+
   try {
     await chrome.tabs.sendMessage(tabId, {
       type: 'rainbow_connect',
@@ -100,7 +100,7 @@ export async function sendConnectEvent(
 export async function sendDisconnectEvent(host: string): Promise<void> {
   const tabId = await findTabIdByHost(host);
   if (!tabId) return;
-  
+
   try {
     await chrome.tabs.sendMessage(tabId, {
       type: 'rainbow_disconnect',
@@ -151,7 +151,7 @@ export async function sendEthereumChainEvent(
 ): Promise<void> {
   const tabId = await findTabIdByHost(host);
   if (!tabId) return;
-  
+
   try {
     await chrome.tabs.sendMessage(tabId, {
       type: 'rainbow_ethereumChainEvent',

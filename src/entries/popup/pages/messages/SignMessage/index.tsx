@@ -4,9 +4,9 @@ import { analytics } from '~/analytics';
 import { event } from '~/analytics/event';
 import { getWalletContext } from '~/analytics/util';
 import { i18n } from '~/core/languages';
+import { ProviderRequestPayload } from '~/core/provider/types';
 import { useDappMetadata } from '~/core/resources/metadata/dapp';
 import { useFeatureFlagsStore } from '~/core/state/currentSettings/featureFlags';
-import { ProviderRequestPayload } from '~/core/provider/types';
 import {
   isPersonalSignMessage,
   isTypedDataMessage,

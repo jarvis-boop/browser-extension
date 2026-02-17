@@ -58,7 +58,9 @@ export const useHWRequestsStore = createBaseStore<HWRequestsStore>(
           if (typeof response === 'string') {
             resolve(response);
           } else {
-            reject(new Error(response.error || 'Hardware wallet signing failed'));
+            reject(
+              new Error(response.error || 'Hardware wallet signing failed'),
+            );
           }
         };
         hwEventEmitter.on(id, handler);

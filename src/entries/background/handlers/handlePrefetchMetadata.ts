@@ -1,5 +1,3 @@
-import { prefetchDappMetadata } from '~/core/resources/metadata/dapp';
-
 import { startPortalHost } from './handlePortalHost';
 
 // This handler needs to stay, as it's triggered from the shared @rainbow/provider package

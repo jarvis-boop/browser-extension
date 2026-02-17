@@ -1,6 +1,6 @@
 /**
  * Hardware Wallet Request Bridge
- * 
+ *
  * Handles communication between background and popup for HW signing requests.
  * Uses chrome.runtime.sendMessage for communication.
  */
@@ -8,13 +8,18 @@
 import { TransactionRequest } from '@ethersproject/providers';
 import { Address, Hex } from 'viem';
 
+import type {
+  HWSigningAction,
+  HWSigningRequest,
+  HWSigningResponse,
+} from '~/core/types/hw';
+
 import { PersonalSignMessage, TypedDataMessage } from '../types/messageSigning';
-import type { HWSigningAction, HWSigningRequest, HWSigningResponse } from '~/core/types/hw';
 
 type HardwareWalletVendor = 'Ledger' | 'Trezor';
 
-type HWPayload = 
-  | TransactionRequest 
+type HWPayload =
+  | TransactionRequest
   | { message: PersonalSignMessage; address: Address }
   | { message: TypedDataMessage; address: Address };
 
@@ -26,7 +31,7 @@ const HW_REQUEST_CHANNEL = 'hw_request';
 export async function sendHWRequestToPopup(
   action: HWSigningAction,
   vendor: HardwareWalletVendor,
-  payload: HWPayload
+  payload: HWPayload,
 ): Promise<Hex> {
   return new Promise((resolve, reject) => {
     const request = {
@@ -42,7 +47,7 @@ export async function sendHWRequestToPopup(
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        
+
         if (typeof response === 'string') {
           resolve(response);
         } else if (response?.error) {
@@ -50,7 +55,7 @@ export async function sendHWRequestToPopup(
         } else {
           reject(new Error('Invalid HW response'));
         }
-      }
+      },
     );
   });
 }
@@ -60,12 +65,12 @@ export async function sendHWRequestToPopup(
  * Returns a cleanup function
  */
 export function listenForHWRequests(
-  handler: (request: HWSigningRequest) => Promise<HWSigningResponse>
+  handler: (request: HWSigningRequest) => Promise<HWSigningResponse>,
 ): () => void {
   const listener = (
     message: { channel: string; payload: HWSigningRequest },
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: HWSigningResponse) => void
+    sendResponse: (response: HWSigningResponse) => void,
   ) => {
     if (message.channel === HW_REQUEST_CHANNEL) {
       handler(message.payload)

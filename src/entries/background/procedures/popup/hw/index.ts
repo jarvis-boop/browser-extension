@@ -1,8 +1,8 @@
 import { os } from '@orpc/server';
 import z from 'zod';
 
-import { HWSigningResponse } from '~/core/types/hw';
 import { useHWRequestsStore } from '~/core/state/hwRequests';
+import { HWSigningResponse } from '~/core/types/hw';
 
 // Use raw os handlers without contract to avoid type complexity
 // The store's PendingHWRequest type is complex due to discriminated unions
@@ -23,9 +23,8 @@ export const hwRouter = {
     )
     .output(z.void())
     .handler(async ({ input: { id, response } }) => {
-      useHWRequestsStore.getState().respondToHWRequest(
-        id,
-        response as HWSigningResponse,
-      );
+      useHWRequestsStore
+        .getState()
+        .respondToHWRequest(id, response as HWSigningResponse);
     }),
 };

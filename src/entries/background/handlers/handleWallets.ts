@@ -16,7 +16,7 @@ export type SignTypedDataArguments = {
 
 /**
  * Handles wallet related requests
- * 
+ *
  * NOTE: This handler is no longer needed as wallet actions are now
  * handled via oRPC in the walletActionHandler.
  * Kept for backwards compatibility - does nothing.

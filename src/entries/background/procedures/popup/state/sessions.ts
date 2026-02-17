@@ -5,13 +5,13 @@ import { addressSchema } from '~/core/schemas/address';
 import { useAppConnectionWalletSwitcherStore } from '~/core/state/appConnectionWalletSwitcher/appConnectionSwitcher';
 import { useAppSessionsStore } from '~/core/state/appSessions';
 import { getDappHost, isValidUrl } from '~/core/utils/connectedApps';
+
 import {
   sendAccountsChangedEvent,
   sendChainChangedEvent,
   sendConnectEvent,
   sendDisconnectEvent,
 } from '~/core/utils/inpageEvents';
-import { toHex } from '~/core/utils/hex';
 
 const ActiveSessionSchema = z.object({
   address: addressSchema,

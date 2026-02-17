@@ -6,6 +6,7 @@
  */
 
 import { createRelayTransport } from 'viem-portal';
+
 // eslint-disable-next-line boundaries/element-types
 import { useIsDefaultWalletStore } from '~/core/state';
 require('../../core/utils/lockdown');

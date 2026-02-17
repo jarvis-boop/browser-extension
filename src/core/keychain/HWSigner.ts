@@ -3,12 +3,9 @@
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { Signer } from '@ethersproject/abstract-signer';
 import { Provider } from '@ethersproject/providers';
-import { Address, Hex, TypedDataDefinition } from 'viem';
+import { Address, TypedDataDefinition } from 'viem';
 
-import {
-  HWSigningAction,
-  HWSigningRequest,
-} from '../types/hw';
+import { HWSigningAction, HWSigningRequest } from '../types/hw';
 import { PersonalSignMessage, TypedDataMessage } from '../types/messageSigning';
 import { defineReadOnly } from '../utils/define';
 import { sendHWRequestToPopup } from '../utils/hwRequestBridge';
@@ -21,7 +18,7 @@ export class HWSigner extends Signer {
   readonly deviceId: string | undefined;
   readonly address: Address | undefined;
   readonly vendor: HardwareWalletVendor;
-  
+
   constructor(
     provider: Provider,
     path: string,
@@ -50,11 +47,7 @@ export class HWSigner extends Signer {
     action: TAction,
     payload: Extract<HWSigningRequest, { action: TAction }>['payload'],
   ): Promise<string> {
-    const response = await sendHWRequestToPopup(
-      action,
-      this.vendor,
-      payload
-    );
+    const response = await sendHWRequestToPopup(action, this.vendor, payload);
 
     return response;
   }

@@ -6,8 +6,7 @@
  */
 
 import { EventEmitter } from 'eventemitter3';
-import { createClient } from 'viem-portal';
-import { createWindowTransport } from 'viem-portal';
+import { createClient, createWindowTransport } from 'viem-portal';
 
 export type ChainIdHex = `0x${string}`;
 
@@ -61,10 +60,15 @@ export class PortalProvider extends EventEmitter {
 
   async send(
     methodOrPayload: string | { method: string; params?: unknown[] },
-    paramsOrCallback?: unknown[] | ((error: Error | null, response: unknown) => void),
+    paramsOrCallback?:
+      | unknown[]
+      | ((error: Error | null, response: unknown) => void),
   ) {
     if (typeof methodOrPayload === 'string') {
-      return this.request({ method: methodOrPayload, params: paramsOrCallback as unknown[] });
+      return this.request({
+        method: methodOrPayload,
+        params: paramsOrCallback as unknown[],
+      });
     }
     return this.request(methodOrPayload);
   }

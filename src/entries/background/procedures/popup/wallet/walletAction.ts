@@ -1,11 +1,10 @@
 import { executeRap, signTypedData } from '~/core/keychain';
 import { WalletExecuteRapProps } from '~/core/raps/references';
-import { SignTypedDataArguments } from '~/entries/background/handlers/handleWallets';
 import { getProvider } from '~/core/viem/clientToProvider';
+import { SignTypedDataArguments } from '~/entries/background/handlers/handleWallets';
 import { logger } from '~/logger';
 
 import { walletOs } from '../os';
-import { WalletActionInputSchema } from '../../../contracts/popup/wallet/walletAction';
 
 export const walletActionHandler = walletOs.walletAction.handler(
   async ({ input }) => {

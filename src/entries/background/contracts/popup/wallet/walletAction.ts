@@ -25,7 +25,7 @@ export const SignTypedDataInputSchema = z.object({
   message: typedDataMessageSchema,
 });
 
-// Input schema for execute_rap action  
+// Input schema for execute_rap action
 export const ExecuteRapInputSchema = z.object({
   rapActionParameters: z.object({
     chainId: z.number(),
