@@ -39,7 +39,7 @@ export interface PortalHostConfig {
 /**
  * Minimal schema for provider RPC
  */
-type ProviderSchema = {
+export type ProviderSchema = {
   eth_request: { params: [method: string, params?: unknown[]]; result: unknown };
   getActiveSession: { params: [host: string]; result: { address: Address; chainId: number } | null };
   chainChanged: { params: [chainId: number]; result: void };
