@@ -97,8 +97,7 @@ export type RequestResponse =
       id: number;
       error?: RequestError;
       jsonrpc?: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      result: any;
+      result: unknown;
     };
 
 /**

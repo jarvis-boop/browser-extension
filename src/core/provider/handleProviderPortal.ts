@@ -5,9 +5,8 @@
  * to the appropriate handlers.
  */
 
-import { isHex, recoverMessageAddress } from 'viem';
-import { createHost } from 'viem-portal';
-
+import { type Address, isHex, recoverMessageAddress } from 'viem';
+import { type PortalHost, type MethodHandlers, createHost } from 'viem-portal';
 import { createTabTransport } from 'viem-portal';
 
 export const ErrorCodes = {
@@ -22,7 +21,7 @@ export const ErrorCodes = {
 } as const;
 
 export interface PortalHostConfig {
-  getActiveSession: (host: string) => { address: string; chainId: number } | null;
+  getActiveSession: (host: string) => { address: Address; chainId: number } | null;
   removeSession: (host: string) => void;
   updateSessionChain: (host: string, chainId: number) => void;
   isSupportedChain: (chainId: number) => boolean;
@@ -33,16 +32,30 @@ export interface PortalHostConfig {
     host: string;
     tabId?: number;
   }) => Promise<unknown>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getProvider: (chainId?: number) => any;
+  // Using unknown for provider to allow different provider types
+  getProvider: (chainId?: number) => unknown;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createPortalHost(config: PortalHostConfig): any {
+/**
+ * Minimal schema for provider RPC
+ */
+type ProviderSchema = {
+  eth_request: { params: [method: string, params?: unknown[]]; result: unknown };
+  getActiveSession: { params: [host: string]; result: { address: Address; chainId: number } | null };
+  chainChanged: { params: [chainId: number]; result: void };
+  accountsChanged: { params: [accounts: Address[]]; result: void };
+  disconnect: { params: []; result: void };
+  connect: { params: [info: { chainId: string }]; result: void };
+  ethereumChainEvent: { params: [event: unknown]; result: void };
+  prefetchDappMetadata: { params: [url: string]; result: void };
+  wallet_action: { params: [action: string, payload: unknown]; result: unknown };
+};
+
+export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderSchema> {
   const transport = createTabTransport();
 
-  const handlers = {
-    eth_request: async ([method, params]: [string, unknown[]?]) => {
+  const handlers: MethodHandlers<ProviderSchema> = {
+    eth_request: async ([method, params]) => {
       const requestHost = '';
       const session = config.getActiveSession(requestHost);
 
@@ -51,14 +64,14 @@ export function createPortalHost(config: PortalHostConfig): any {
           return session ? `0x${session.chainId.toString(16)}` : '0x1';
 
         case 'eth_accounts':
-          return session ? [session.address.toLowerCase()] : [];
+          return session ? [session.address.toLowerCase() as Address] : [];
 
         case 'eth_coinbase':
           return session?.address?.toLowerCase() || null;
 
         case 'eth_requestAccounts':
           if (session) {
-            return [session.address.toLowerCase()];
+            return [session.address.toLowerCase() as Address];
           }
           return config.requestApproval({ method, params, host: requestHost });
 
@@ -70,8 +83,8 @@ export function createPortalHost(config: PortalHostConfig): any {
         case 'eth_gasPrice':
         case 'eth_getCode':
         case 'eth_getLogs': {
-          const provider = config.getProvider(session?.chainId);
-          return provider.send(method, params || []);
+          const provider = config.getProvider(session?.chainId) as { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+          return provider.request({ method, params: params || [] });
         }
 
         case 'eth_sendTransaction':
@@ -109,10 +122,7 @@ export function createPortalHost(config: PortalHostConfig): any {
           if (!message || !signature || !isHex(signature)) {
             throw { code: ErrorCodes.INVALID_PARAMS, message: 'Invalid params' };
           }
-          return recoverMessageAddress({
-            message,
-            signature: signature as `0x${string}`,
-          });
+          return recoverMessageAddress({ message, signature });
         }
 
         case 'wallet_revokePermissions':
@@ -120,28 +130,23 @@ export function createPortalHost(config: PortalHostConfig): any {
           return null;
 
         default: {
-          const provider = config.getProvider(session?.chainId);
-          return provider.send(method, params || []);
+          const provider = config.getProvider(session?.chainId) as { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+          return provider.request({ method, params: params || [] });
         }
       }
     },
 
-    getActiveSession: async ([host]: [string]) => {
-      return config.getActiveSession(host);
-    },
-
+    getActiveSession: async ([host]) => config.getActiveSession(host),
     chainChanged: async () => {},
     accountsChanged: async () => {},
     disconnect: async () => {},
     connect: async () => {},
     ethereumChainEvent: async () => {},
     prefetchDappMetadata: async () => {},
-
     wallet_action: async () => {
       throw { code: ErrorCodes.UNSUPPORTED_METHOD, message: 'Not implemented' };
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return createHost(transport, { handlers } as any);
+  return createHost(transport, { handlers });
 }
