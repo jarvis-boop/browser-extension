@@ -1,12 +1,13 @@
 /**
  * Inpage script - injected into dapps
  *
- * Creates the window.ethereum provider using viem-inpage.
+ * Creates the window.ethereum provider using viem-inpage + viem-portal.
  */
 
 import { uuid4 } from '@sentry/core';
 import _ from 'lodash';
 import { EIP1193Provider, announceProvider } from 'mipd';
+import { createClient, createWindowTransport } from 'viem-portal';
 import { createEip1193Provider, type Eip1193Provider } from 'viem-inpage';
 
 import { RAINBOW_ICON_RAW_SVG } from '~/core/references/rawImages';
@@ -30,18 +31,11 @@ declare global {
 
 window.lodash = _.noConflict();
 
-// Create a minimal client for the provider
-// The actual RPC will be handled by the background via viem-portal
-const mockClient = {
-  chain: { id: 1 },
-  account: undefined,
-  request: async () => {
-    throw new Error('RPC not configured - use viem-portal for actual requests');
-  },
-};
+// Create viem-portal client (window ↔ background communication)
+const portalClient = createClient(createWindowTransport());
 
-// Create the provider using viem-inpage
-const rainbowProvider = createEip1193Provider(mockClient);
+// Create EIP-1193 provider from the portal client
+const rainbowProvider = createEip1193Provider(portalClient as never);
 
 if (shouldInjectProvider()) {
   // Create a copy without isMetaMask for EIP-6963
