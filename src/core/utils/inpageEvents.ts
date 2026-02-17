@@ -1,118 +1,98 @@
 /**
- * Inpage Events - Simple event forwarding from background to inpage
+ * Inpage Events - Event forwarding from background to inpage via viem-portal
  *
- * Uses chrome.tabs.sendMessage to send events to content script,
- * which forwards to inpage via window.postMessage.
- * This replaces the old messenger system for event notifications.
+ * Uses viem-portal's push method to send events to inpage.
+ * This replaces the old chrome.tabs.sendMessage approach.
  */
 
 import type { Address } from 'viem';
 
+import type { PortalHost } from 'viem-portal';
+
+import type { ProviderSchema } from '~/core/provider/handleProviderPortal';
+
 /**
- * Find tab ID by URL host
- * Queries chrome.tabs to find a tab with matching URL host
+ * Get the portal host instance for pushing events
  */
-async function findTabIdByHost(host: string): Promise<number | null> {
+function getPortalHost(): PortalHost<ProviderSchema> | null {
+  // This will be set when startPortalHost() is called
+  // We import dynamically to avoid circular dependencies
   try {
-    const tabs = await chrome.tabs.query({});
-    for (const tab of tabs) {
-      if (tab.url) {
-        try {
-          const url = new URL(tab.url);
-          const tabHost = url.host.replace(/^www\./, '');
-          if (tabHost === host) {
-            return tab.id ?? null;
-          }
-        } catch {
-          // Invalid URL, skip
-        }
-      }
-    }
+    const { startPortalHost } = require('~/entries/background/handlers/handlePortalHost');
+    return startPortalHost();
   } catch {
-    // Chrome API not available
+    return null;
   }
-  return null;
 }
 
 /**
- * Send accountsChanged event to inpage
+ * Send accountsChanged event to inpage via viem-portal
  */
 export async function sendAccountsChangedEvent(
-  host: string,
+  _host: string,
   accounts: Address[],
 ): Promise<void> {
-  const tabId = await findTabIdByHost(host);
-  if (!tabId) return;
+  const host = getPortalHost();
+  if (!host) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, {
-      type: 'rainbow_accountsChanged',
-      data: accounts,
-    });
+    host.push('accountsChanged', accounts);
   } catch {
-    // Tab might not have content script loaded, ignore
+    // Portal host not available, ignore
   }
 }
 
 /**
- * Send chainChanged event to inpage
+ * Send chainChanged event to inpage via viem-portal
  */
 export async function sendChainChangedEvent(
-  host: string,
+  _host: string,
   chainId: number,
 ): Promise<void> {
-  const tabId = await findTabIdByHost(host);
-  if (!tabId) return;
+  const host = getPortalHost();
+  if (!host) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, {
-      type: 'rainbow_chainChanged',
-      data: `0x${chainId.toString(16)}`,
-    });
+    host.push('chainChanged', `0x${chainId.toString(16)}`);
   } catch {
-    // Tab might not have content script loaded, ignore
+    // Portal host not available, ignore
   }
 }
 
 /**
- * Send connect event to inpage
+ * Send connect event to inpage via viem-portal
  */
 export async function sendConnectEvent(
-  host: string,
+  _host: string,
   chainId: number,
 ): Promise<void> {
-  const tabId = await findTabIdByHost(host);
-  if (!tabId) return;
+  const host = getPortalHost();
+  if (!host) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, {
-      type: 'rainbow_connect',
-      data: { chainId: `0x${chainId.toString(16)}` },
-    });
+    host.push('connect', { chainId: `0x${chainId.toString(16)}` });
   } catch {
-    // Tab might not have content script loaded, ignore
+    // Portal host not available, ignore
   }
 }
 
 /**
- * Send disconnect event to inpage
+ * Send disconnect event to inpage via viem-portal
  */
-export async function sendDisconnectEvent(host: string): Promise<void> {
-  const tabId = await findTabIdByHost(host);
-  if (!tabId) return;
+export async function sendDisconnectEvent(_host: string): Promise<void> {
+  const host = getPortalHost();
+  if (!host) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, {
-      type: 'rainbow_disconnect',
-      data: [],
-    });
+    host.push('disconnect', []);
   } catch {
-    // Tab might not have content script loaded, ignore
+    // Portal host not available, ignore
   }
 }
 
 /**
  * Send setDefaultProvider event to all tabs
+ * Note: This still uses chrome.tabs as it's broadcast to all tabs
  */
 export async function sendSetDefaultProviderEvent(
   rainbowAsDefault: boolean,
@@ -137,10 +117,10 @@ export async function sendSetDefaultProviderEvent(
 }
 
 /**
- * Send ethereumChainEvent to inpage
+ * Send ethereumChainEvent to inpage via viem-portal
  */
 export async function sendEthereumChainEvent(
-  host: string,
+  _host: string,
   event: {
     host: string;
     chainId: number;
@@ -149,15 +129,12 @@ export async function sendEthereumChainEvent(
     extensionUrl: string;
   },
 ): Promise<void> {
-  const tabId = await findTabIdByHost(host);
-  if (!tabId) return;
+  const host = getPortalHost();
+  if (!host) return;
 
   try {
-    await chrome.tabs.sendMessage(tabId, {
-      type: 'rainbow_ethereumChainEvent',
-      data: event,
-    });
+    host.push('ethereumChainEvent', event);
   } catch {
-    // Tab might not have content script loaded, ignore
+    // Portal host not available, ignore
   }
 }

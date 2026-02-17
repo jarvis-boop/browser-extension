@@ -47,47 +47,15 @@ function getDappHost(url: string): string {
   }
 }
 
-function toHex(value: string | number): string {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value;
-  return `0x${num.toString(16)}`;
-}
-
-// Set up event forwarding from background
-// TODO: These will come as push messages from the portal host
+// Set up event forwarding from background via viem-portal
+// PortalProvider handles subscription to push events internally
 function setupEventListeners(): void {
-  const host = getDappHost(window.location.href);
-  if (!host) return;
-
-  // Listen for events via window.postMessage from content script relay
-  window.addEventListener('message', (event) => {
-    if (event.source !== window) return;
-    const { type, data } = event.data || {};
-
-    switch (type) {
-      case 'rainbow_accountsChanged':
-        rainbowProvider.emit('accountsChanged', data);
-        break;
-      case 'rainbow_chainChanged':
-        rainbowProvider.emit('chainChanged', toHex(data));
-        break;
-      case 'rainbow_disconnect':
-        rainbowProvider.emit('accountsChanged', []);
-        rainbowProvider.emit('disconnect', []);
-        break;
-      case 'rainbow_connect':
-        rainbowProvider.emit('connect', data);
-        break;
-      case 'rainbow_ethereumChainEvent':
-        if (getDappHost(window.location.href) === data.host) {
-          injectNotificationIframe({
-            chainId: data.chainId as ChainId,
-            chainName: data.chainName,
-            status: data.status as IN_DAPP_NOTIFICATION_STATUS,
-            extensionUrl: data.extensionUrl,
-          });
-        }
-        break;
-    }
+  // Listen for ethereumChainEvent to show notification iframe
+  // Other events (accountsChanged, chainChanged, connect, disconnect)
+  // are handled internally by PortalProvider
+  rainbowProvider.on('connect', (info: unknown) => {
+    const data = info as { chainId: string };
+    // Could trigger notification here if needed
   });
 }
 

@@ -2,7 +2,7 @@
  * Portal Provider - Minimal EIP-1193 provider using viem-portal
  *
  * Simple EIP-1193 provider for inpage (window.ethereum).
- * For chain RPC, use viem with portalTransport instead.
+ * Uses viem-portal for both RPC requests and push events.
  */
 
 import { EventEmitter } from 'eventemitter3';
@@ -23,6 +23,40 @@ export class PortalProvider extends EventEmitter {
   selectedAddress: string | undefined;
 
   private client = createClient(createWindowTransport());
+
+  constructor() {
+    super();
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners() {
+    // Subscribe to push events from the background via viem-portal
+    this.client.subscribe('accountsChanged', (data: unknown) => {
+      const accounts = data as string[];
+      this.selectedAddress = accounts[0];
+      this.connected = accounts.length > 0;
+      this.emit('accountsChanged', accounts);
+    });
+
+    this.client.subscribe('chainChanged', (data: unknown) => {
+      const chainId = data as string;
+      this.chainId = chainId as ChainIdHex;
+      this.networkVersion = parseInt(chainId, 16).toString();
+      this.emit('chainChanged', chainId);
+    });
+
+    this.client.subscribe('disconnect', () => {
+      this.selectedAddress = undefined;
+      this.connected = false;
+      this.emit('accountsChanged', []);
+      this.emit('disconnect', []);
+    });
+
+    this.client.subscribe('connect', (data: unknown) => {
+      this.connected = true;
+      this.emit('connect', data);
+    });
+  }
 
   async request({ method, params }: { method: string; params?: unknown[] }) {
     const result = await this.client.request('eth_request', method, params);
