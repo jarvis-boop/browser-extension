@@ -6,8 +6,12 @@
  */
 
 import { type Address, isHex, recoverMessageAddress } from 'viem';
-import { type PortalHost, type MethodHandlers, createHost } from 'viem-portal';
-import { createTabTransport } from 'viem-portal';
+import {
+  type MethodHandlers,
+  type PortalHost,
+  createHost,
+  createTabTransport,
+} from 'viem-portal';
 
 export const ErrorCodes = {
   USER_REJECTED: 4001,
@@ -21,7 +25,9 @@ export const ErrorCodes = {
 } as const;
 
 export interface PortalHostConfig {
-  getActiveSession: (host: string) => { address: Address; chainId: number } | null;
+  getActiveSession: (
+    host: string,
+  ) => { address: Address; chainId: number } | null;
   removeSession: (host: string) => void;
   updateSessionChain: (host: string, chainId: number) => void;
   isSupportedChain: (chainId: number) => boolean;
@@ -40,18 +46,29 @@ export interface PortalHostConfig {
  * Minimal schema for provider RPC
  */
 export type ProviderSchema = {
-  eth_request: { params: [method: string, params?: unknown[]]; result: unknown };
-  getActiveSession: { params: [host: string]; result: { address: Address; chainId: number } | null };
+  eth_request: {
+    params: [method: string, params?: unknown[]];
+    result: unknown;
+  };
+  getActiveSession: {
+    params: [host: string];
+    result: { address: Address; chainId: number } | null;
+  };
   chainChanged: { params: [chainId: number]; result: void };
   accountsChanged: { params: [accounts: Address[]]; result: void };
   disconnect: { params: []; result: void };
   connect: { params: [info: { chainId: string }]; result: void };
   ethereumChainEvent: { params: [event: unknown]; result: void };
   prefetchDappMetadata: { params: [url: string]; result: void };
-  wallet_action: { params: [action: string, payload: unknown]; result: unknown };
+  wallet_action: {
+    params: [action: string, payload: unknown];
+    result: unknown;
+  };
 };
 
-export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderSchema> {
+export function createPortalHost(
+  config: PortalHostConfig,
+): PortalHost<ProviderSchema> {
   const transport = createTabTransport();
 
   const handlers: MethodHandlers<ProviderSchema> = {
@@ -83,7 +100,12 @@ export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderS
         case 'eth_gasPrice':
         case 'eth_getCode':
         case 'eth_getLogs': {
-          const provider = config.getProvider(session?.chainId) as { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+          const provider = config.getProvider(session?.chainId) as {
+            request: (args: {
+              method: string;
+              params?: unknown[];
+            }) => Promise<unknown>;
+          };
           return provider.request({ method, params: params || [] });
         }
 
@@ -104,7 +126,10 @@ export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderS
           }
 
           if (!config.isSupportedChain(targetChainId)) {
-            throw { code: ErrorCodes.CHAIN_NOT_SUPPORTED, message: 'Chain not supported' };
+            throw {
+              code: ErrorCodes.CHAIN_NOT_SUPPORTED,
+              message: 'Chain not supported',
+            };
           }
 
           config.updateSessionChain(requestHost, targetChainId);
@@ -120,7 +145,10 @@ export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderS
         case 'personal_ecRecover': {
           const [message, signature] = params as [string, string];
           if (!message || !signature || !isHex(signature)) {
-            throw { code: ErrorCodes.INVALID_PARAMS, message: 'Invalid params' };
+            throw {
+              code: ErrorCodes.INVALID_PARAMS,
+              message: 'Invalid params',
+            };
           }
           return recoverMessageAddress({ message, signature });
         }
@@ -130,7 +158,12 @@ export function createPortalHost(config: PortalHostConfig): PortalHost<ProviderS
           return null;
 
         default: {
-          const provider = config.getProvider(session?.chainId) as { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+          const provider = config.getProvider(session?.chainId) as {
+            request: (args: {
+              method: string;
+              params?: unknown[];
+            }) => Promise<unknown>;
+          };
           return provider.request({ method, params: params || [] });
         }
       }

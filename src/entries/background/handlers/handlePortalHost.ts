@@ -4,8 +4,13 @@
  * Handles incoming RPC requests from inpage via the portal transport.
  */
 
-import { createPortalHost, ErrorCodes, type ProviderSchema } from '~/core/provider/handleProviderPortal';
 import type { PortalHost } from 'viem-portal';
+
+import {
+  ErrorCodes,
+  type ProviderSchema,
+  createPortalHost,
+} from '~/core/provider/handleProviderPortal';
 import { useAppSessionsStore } from '~/core/state';
 import { useNetworkStore } from '~/core/state/networks/networks';
 import { getProvider } from '~/core/viem/clientToProvider';
@@ -38,7 +43,9 @@ export function startPortalHost(): PortalHost<ProviderSchema> {
     },
 
     updateSessionChain: (host: string, chainId: number) => {
-      useAppSessionsStore.getState().updateActiveSessionChainId({ host, chainId });
+      useAppSessionsStore
+        .getState()
+        .updateActiveSessionChainId({ host, chainId });
     },
 
     // Chain support
@@ -52,7 +59,8 @@ export function startPortalHost(): PortalHost<ProviderSchema> {
     },
 
     // User approval - delegate to existing handleProviderRequest logic
-    requestApproval: async (_request) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    requestApproval: async (_request: unknown) => {
       // This opens the popup and waits for user approval
       // For now we throw unsupported - the full implementation would integrate
       // with the pending request store and popup flow
