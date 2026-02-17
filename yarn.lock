@@ -9596,7 +9596,7 @@ __metadata:
     typescript: "npm:5.8.2"
     viem: "npm:2.40.3"
     viem-hw: "npm:0.1.2"
-    viem-inpage: "npm:0.2.0"
+    viem-inpage: "npm:0.2.1"
     viem-portal: "npm:0.2.2"
     vitest: "npm:4.0.14"
     web-ext: "npm:7.6.2"
@@ -23560,9 +23560,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem-inpage@npm:0.2.0":
-  version: 0.2.0
-  resolution: "viem-inpage@npm:0.2.0"
+"viem-inpage@npm:0.2.1":
+  version: 0.2.1
+  resolution: "viem-inpage@npm:0.2.1"
   peerDependencies:
     viem: ">=2.0.0"
     viem-portal: ">=0.2.0"
@@ -23571,7 +23571,7 @@ __metadata:
       optional: false
     viem-portal:
       optional: false
-  checksum: 10c0/675bfdafd05c2f1fe3aee1c05738e4fcd1115f2d9d438d6139396852f74d49438f766a043e91e5de9086f88f4af80d9faace04329b268646ca5e1d2b919b37e0
+  checksum: 10c0/5f34486f43b07fab5ea7e988902613057ab91ea803c3c95569e1c4d446353f1fb528a8c9179a824f8cbae8f9a8436d5eddf85ba6ac9e313f3066f3cdbe51b2ed
   languageName: node
   linkType: hard
 
